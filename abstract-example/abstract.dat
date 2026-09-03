@@ -28,3 +28,10 @@ param c :=
 # 1 2 4 refers to constraint 1, variable 2
 # 1 2 refers to variable 1 gets the value 2 
 # 2 3 refers to variable 2 gets the value 3 
+# This works because we declared c as model.c = pyo.Param(model.J), where J is the number of variables 
+
+# Naturally, since B is only indexed by m, the number of constraints, it only requires one index to fully define it
+# Recall that b was defined as pyo.Param(model.I)
+param b :=
+ 1 1
+ ;
