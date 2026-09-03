@@ -1,0 +1,30 @@
+# one way to input the data in AMPL format 
+# for indexed parameters, the indexes are given before the value 
+
+# Note that we have one constraint, therefore the valuer of m is one
+param m := 1 ;
+# Note that there are two variables, therefore the value of n is two 
+param n := 2 ; 
+# Note that the coefficient matrix a is size mxn, where m is the number of constraints (1) and n is the number of variables (2)
+# size(a) = 1 x 2 
+# One say to provide values to arrays or vectors in AMPL format is to give the index and the value 
+# by providing 1 2 4, we cause the model.a[1,2] to get the value 4
+# by this logic, you only need to provide one index to provide the value of a parameter only indexed by one parameter 
+
+param a := 
+ 1 1 3
+ 1 2 4
+ ;
+
+# Note that the parameter c is only indexed by one parameter
+
+param c := 
+ 1 2
+ 2 3
+ ;
+
+# Note that this is very different from linear algebra 
+# 1 1 3 refers to constraint 1, variable 1, and this is because we declared a as model.a = pyo.Param(model.I, model.J), where I is the number of constraints, and J the number of variables 
+# 1 2 4 refers to constraint 1, variable 2
+# 1 2 refers to variable 1 gets the value 2 
+# 2 3 refers to variable 2 gets the value 3 
