@@ -13,11 +13,11 @@ model.I = pyo.RangeSet(1, model.m) # mx1
 model.A = pyo.Param(model.I) # mx1 
 model.Ea = pyo.Param(model.I) # mx1 
 model.W = pyo.Param(within=pyo.NonNegativeReals) # 1x1
-model.x = pyo.Param(model.I, within=pyo.UnitInterval) # nx1
 model.fa = pyo.Param(within=pyo.NonNegativeReals) # 1x1 
 model.fb_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1 
 model.Tr_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1
 
+model.x = pyo.Var(model.I, within=pyo.UnitInterval, initialize=0.1) # nx1
 model.fb = pyo.Var(initialize=6, within=pyo.NonNegativeReals) # 1x1 
 model.Tr = pyo.Var(initialize=100, within=pyo.NonNegativeReals) # 1x1
 
@@ -55,6 +55,8 @@ def xp_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[6] \
     + (k(am, 2) * am[2] * am[3] * am.W) \
     - 0.5 * (k(am, 3) * am[3] * am[6] * am.W)
+def x_bal(am):
+    return 1 == sum(am.x[i] for i in am.I)
 
 # Inequality constraints
 def fb_rule(am):
@@ -70,5 +72,6 @@ model.xc_bal = pyo.Constraint(rule=xc_bal)
 model.xe_bal = pyo.Constraint(rule=xe_bal)
 model.xg_bal = pyo.Constraint(rule=xg_bal)
 model.xp_bal = pyo.Constraint(rule=xp_bal)
+model.x_bal = pyo.Constraint(rule=x_bal)
 model.fb_rule = pyo.Constraint(rule=fb_rule)
 model.tr_rule = pyo.Constraint(rule=tr_rule)

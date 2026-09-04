@@ -1,0 +1,21 @@
+param m := 1; 
+param n := 2; 
+param A :=
+    1 1.6599e6
+    2 7.2117e8
+    3 2.6745e12
+    ;
+param Ea := 
+    1 -6666.7
+    2 -8333.3
+    3 -11111
+    ;
+Param W := 2104.7
+Param fb_cons := 
+    1 2
+    2 10
+    ;
+Param Tr_cons := 
+    1 50
+    2 150
+    ;
