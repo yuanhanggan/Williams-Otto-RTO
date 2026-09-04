@@ -20,7 +20,7 @@ Solver:
   Termination condition: optimal
   Id: 0
   Error rc: 0
-  Time: 0.08427691459655762
+  Time: 0.15963482856750488
 # ----------------------------------------------------------
 #   Solution Information
 # ----------------------------------------------------------
@@ -32,14 +32,22 @@ Solution:
   Message: Ipopt 3.14.20\x3a Optimal Solution Found
   Objective:
     obj:
-      Value: -6220.740055291475
+      Value: -921.516942930323
   Variable:
     Tr:
-      Value: 110.75367011379554
+      Value: 362.6852167684725
     fb:
-      Value: 10.000000099548945
+      Value: 4.723111180965596
     x[1]:
-      Value: 0.1525423715944549
+      Value: 0.08703499065928294
     x[2]:
-      Value: 0.8474576284055451
+      Value: 0.38969313837931047
+    x[3]:
+      Value: 0.015271594996062654
+    x[4]:
+      Value: 0.2909159164208234
+    x[5]:
+      Value: 0.10743960200116341
+    x[6]:
+      Value: 0.10964475754335723
   Constraint: No values

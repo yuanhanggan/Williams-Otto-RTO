@@ -17,6 +17,6 @@ param fb_cons :=
     2 10
     ;
 param Tr_cons := 
-    1 50
-    2 150
+    1 323.15
+    2 423.15
     ;
