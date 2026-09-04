@@ -16,7 +16,7 @@ model.fa = pyo.Param(within=pyo.PositiveReals) # 1x1
 model.fb_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.PositiveReals) # 2x1 
 model.Tr_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.PositiveReals) # 2x1
 
-model.x = pyo.Var(model.J, within=pyo.UnitInterval) # mx1
+model.x = pyo.Var(model.J, within=pyo.PositiveReals) # mx1
 model.fb = pyo.Var(within=pyo.PositiveReals) # 1x1 
 model.Tr = pyo.Var(within=pyo.PositiveReals) # 1x1
 
@@ -26,10 +26,10 @@ def k(am, I):
 
 # Objective expression 
 def obj_rule(am):
-    return 5554.1 * (am.fa + am.fb) * am.x[6] \
+    return -1 * (5554.1 * (am.fa + am.fb) * am.x[6] \
     + 125.91 * (am.fa + am.fb) * am.x[4] \
     - 370.3 * am.fa \
-    - 555.42 * am.fb
+    - 555.42 * am.fb)
 
 # Equality constraint expressions
 def xa_bal(am):
@@ -46,7 +46,7 @@ def xc_bal(am):
     - k(am, 3) * am.x[3] * am.x[6] * am.W
 def xe_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[4] \
-    + 2* (k(am, 2) * am.x[2] * am.x[3] * am.W)
+    + (k(am, 2) * am.x[2] * am.x[3] * am.W)
 def xg_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[5] \
     + 1.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W)
@@ -54,8 +54,7 @@ def xp_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[6] \
     + (k(am, 2) * am.x[2] * am.x[3] * am.W) \
     - 0.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W)
-def x_bal(am):
-    return 1.0 == sum(am.x[i] for i in am.J)
+
 
 # Inequality constraints
 def fb_rule(am):
@@ -71,7 +70,6 @@ model.xc_bal = pyo.Constraint(rule=xc_bal)
 model.xe_bal = pyo.Constraint(rule=xe_bal)
 model.xg_bal = pyo.Constraint(rule=xg_bal)
 model.xp_bal = pyo.Constraint(rule=xp_bal)
-model.x_bal = pyo.Constraint(rule=x_bal)
 model.fb_rule = pyo.Constraint(rule=fb_rule)
 model.tr_rule = pyo.Constraint(rule=tr_rule)
 
