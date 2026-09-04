@@ -73,4 +73,4 @@ model.xp_bal = pyo.Constraint(rule=xp_bal)
 model.fb_rule = pyo.Constraint(rule=fb_rule)
 model.tr_rule = pyo.Constraint(rule=tr_rule)
 
-# pyomo solve wo.py wo.dat --solver=glpk
+# pyomo solve wo.py wo.dat --solver=ipopt
