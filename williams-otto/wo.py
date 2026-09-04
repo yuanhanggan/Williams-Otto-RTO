@@ -11,14 +11,14 @@ model.I = pyo.RangeSet(1, model.m) # mx1
 model.J = pyo.RangeSet(1, model.n) # nx1
 model.A = pyo.Param(model.I) # mx1 
 model.Ea = pyo.Param(model.I) # mx1 
-model.W = pyo.Param(within=pyo.NonNegativeReals) # 1x1
-model.fa = pyo.Param(within=pyo.NonNegativeReals) # 1x1 
-model.fb_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1 
-model.Tr_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1
+model.W = pyo.Param(within=pyo.PositiveReals) # 1x1
+model.fa = pyo.Param(within=pyo.PositiveReals) # 1x1 
+model.fb_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.PositiveReals) # 2x1 
+model.Tr_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.PositiveReals) # 2x1
 
-model.x = pyo.Var(model.J, within=pyo.UnitInterval, initialize=0.1) # mx1
-model.fb = pyo.Var(initialize=6, within=pyo.NonNegativeReals) # 1x1 
-model.Tr = pyo.Var(initialize=100, within=pyo.NonNegativeReals) # 1x1
+model.x = pyo.Var(model.J, within=pyo.UnitInterval) # mx1
+model.fb = pyo.Var(within=pyo.PositiveReals) # 1x1 
+model.Tr = pyo.Var(within=pyo.PositiveReals) # 1x1
 
 # Rate equation
 def k(am, I):
@@ -38,24 +38,24 @@ def xa_bal(am):
 def xb_bal(am):
     return 0 == am.fb - (am.fa + am.fb) * am.x[2] \
     - (k(am, 1) * am.x[1] * am.x[2] * am.W) \
-    - (k(am, 2) * am[2] * am[3] * am.W)
+    - (k(am, 2) * am.x[2] * am.x[3] * am.W)
 def xc_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[3] \
     + 2 * (k(am, 1) * am.x[1] * am.x[2] * am.W) \
-    - 2 * (k(am, 2) * am[2] * am[3] * am.W) \
-    - k(am, 3) * am[3] * am[6] * am.W
+    - 2 * (k(am, 2) * am.x[2] * am.x[3] * am.W) \
+    - k(am, 3) * am.x[3] * am.x[6] * am.W
 def xe_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[4] \
-    + (k(am, 2) * am[2] * am[3] * am.W)
+    + 2* (k(am, 2) * am.x[2] * am.x[3] * am.W)
 def xg_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[5] \
-    + 1.5 * (k(am, 3) * am[3] * am[6] * am.W)
+    + 1.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W)
 def xp_bal(am):
     return 0 == -1 * (am.fa + am.fb) * am.x[6] \
-    + (k(am, 2) * am[2] * am[3] * am.W) \
-    - 0.5 * (k(am, 3) * am[3] * am[6] * am.W)
+    + (k(am, 2) * am.x[2] * am.x[3] * am.W) \
+    - 0.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W)
 def x_bal(am):
-    return 1 == sum(am.x[i] for i in am.I)
+    return 1.0 == sum(am.x[i] for i in am.J)
 
 # Inequality constraints
 def fb_rule(am):
