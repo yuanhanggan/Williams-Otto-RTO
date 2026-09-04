@@ -1,5 +1,5 @@
-param m := 1; 
-param n := 2; 
+param m := 3; 
+param n := 6;
 param A :=
     1 1.6599e6
     2 7.2117e8
@@ -10,12 +10,13 @@ param Ea :=
     2 -8333.3
     3 -11111
     ;
-Param W := 2104.7
-Param fb_cons := 
+param W := 2104.7;
+param fa := 1.8;
+param fb_cons := 
     1 2
     2 10
     ;
-Param Tr_cons := 
+param Tr_cons := 
     1 50
     2 150
     ;

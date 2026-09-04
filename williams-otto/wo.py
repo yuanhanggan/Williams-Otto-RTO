@@ -5,11 +5,10 @@ import pyomo.environ as pyo
 # 
 
 model = pyo.AbstractModel()
-
-model.m = pyo.Param(within=pyo.NonNegativeIntegers) # 1x1
 model.n = pyo.Param(within=pyo.NonNegativeIntegers) # 1x1
-model.J = pyo.RangeSet(1, model.n) # nx1 
+model.m = pyo.Param(within=pyo.NonNegativeIntegers) # 1x1
 model.I = pyo.RangeSet(1, model.m) # mx1 
+model.J = pyo.RangeSet(1, model.n) # nx1
 model.A = pyo.Param(model.I) # mx1 
 model.Ea = pyo.Param(model.I) # mx1 
 model.W = pyo.Param(within=pyo.NonNegativeReals) # 1x1
@@ -17,7 +16,7 @@ model.fa = pyo.Param(within=pyo.NonNegativeReals) # 1x1
 model.fb_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1 
 model.Tr_cons = pyo.Param(pyo.RangeSet(1, 2), within=pyo.NonNegativeReals) # 2x1
 
-model.x = pyo.Var(model.I, within=pyo.UnitInterval, initialize=0.1) # nx1
+model.x = pyo.Var(model.J, within=pyo.UnitInterval, initialize=0.1) # mx1
 model.fb = pyo.Var(initialize=6, within=pyo.NonNegativeReals) # 1x1 
 model.Tr = pyo.Var(initialize=100, within=pyo.NonNegativeReals) # 1x1
 
@@ -75,3 +74,5 @@ model.xp_bal = pyo.Constraint(rule=xp_bal)
 model.x_bal = pyo.Constraint(rule=x_bal)
 model.fb_rule = pyo.Constraint(rule=fb_rule)
 model.tr_rule = pyo.Constraint(rule=tr_rule)
+
+# pyomo solve wo.py wo.dat --solver=glpk
