@@ -12,16 +12,18 @@ param n := 2 ;
 # by this logic, you only need to provide one index to provide the value of a parameter only indexed by one parameter 
 
 param a := 
- 1 1 3
- 1 2 4
- ;
+1 1 3
+1 2 4
+;
 
-# Note that the parameter c is only indexed by one parameter
+# Note that for the matrix a, we know we are given 1 constraint and 2 variables, therefore the shape of the matrix is mxn or 1x2
+
+# Note that for the paramter c, we know it takes on the column shape of nx1, which is 2x1, so the first index counts row wise 
 
 param c := 
- 1 2
- 2 3
- ;
+1 2
+2 3
+;
 
 # Note that this is very different from linear algebra 
 # 1 1 3 refers to constraint 1, variable 1, and this is because we declared a as model.a = pyo.Param(model.I, model.J), where I is the number of constraints, and J the number of variables 
@@ -32,6 +34,7 @@ param c :=
 
 # Naturally, since B is only indexed by m, the number of constraints, it only requires one index to fully define it
 # Recall that b was defined as pyo.Param(model.I)
+# For the parameter B, we know that it is just the number of constraints, which is mx1, or 1x1 in our example 
 param b :=
- 1 1
- ;
+1 1
+;
