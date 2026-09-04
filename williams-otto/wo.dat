@@ -11,7 +11,7 @@ param Ea :=
     3 -11111
     ;
 param W := 2104.7;
-param fa := 1.8;
+param fa := 2.4;
 param fb_cons := 
     1 2
     2 10

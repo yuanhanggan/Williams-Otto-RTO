@@ -46,7 +46,7 @@ def xc_bal(am):
     - (k(am, 3) * am.x[3] * am.x[6] * am.W)
 def xe_bal(am):
     return 0 == (-1 * (am.fa + am.fb) * am.x[4]) \
-    + 1 * (k(am, 2) * am.x[2] * am.x[3] * am.W)
+    + 2 * (k(am, 2) * am.x[2] * am.x[3] * am.W)
 def xg_bal(am):
     return 0 == (-1 * (am.fa + am.fb) * am.x[5]) \
     + 1.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W)
