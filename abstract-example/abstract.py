@@ -41,3 +41,5 @@ def ax_constraint_rule(m, i):
 model.AxbConstraint = pyo.Constraint(model.I, rule=ax_constraint_rule)
 
 
+# to solve this, run pyomo solve abstract.py abstract.dat --solver=cplex
+
