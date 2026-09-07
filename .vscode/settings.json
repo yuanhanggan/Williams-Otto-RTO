@@ -1,4 +1,4 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/.conda/rto/bin/python",
+  "python.defaultInterpreterPath": "/opt/anaconda3/envs/rto/bin/python",
   "python.terminal.activateEnvironment": true
 }
