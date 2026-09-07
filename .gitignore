@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local Python environments
+.conda/
+.venv/
+venv/
+env/
+
+# Local machine-specific VS Code settings
+.vscode/settings.json
