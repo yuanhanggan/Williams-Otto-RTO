@@ -13,16 +13,20 @@ mo.J = RangeSet(1, mo.n) # nx1
 mo.A = Param(mo.I) # mx1 
 mo.Ea = Param(mo.I) # mx1
 mo.W = Param(within=PositiveReals) # 1x1 
-mo.fa = Param(within=PositiveReals) # 1x1 may change this, this is a disturbance variable 
+# mo.fa = Param(within=PositiveReals) # 1x1 may change this, this is a disturbance variable 
 mo.fb_cons = Param(RangeSet(1, 2), within=PositiveReals) # 2x1 
 mo.Tr_cons = Param(RangeSet(1, 2), within=PositiveReals) # 2x1 
 
-mo.t = ContinuousSet() # (tf - t0)/h x 1
+mo.t = ContinuousSet(bounds = (0, 50)) # (tf - t0)/h x 1
 mo.x = Var(mo.J, mo.t)
 mo.fb = Var(mo.t)
 mo.fa = Var(mo.t)
 mo.Tr = Var(mo.t)
 
+x_init = Param(mo.J, initialize=(0.09576092651018556, 0.38800254944550255, 0.015975230722923693, 0.28492243697452413, 0.10931645678940315, 0.10602239955746103))
+Tr_init = Param(initialize=365.9045240211792)
+fa_init = Param(initialize=2.4)
+fb_init = Param(initialize=6.091109369944852)
 
 # Rate equation 
 def k(am, I):
@@ -43,8 +47,8 @@ mo.dxe_dt = DerivativeVar(mo.x[4], wrt=mo.t)
 mo.dxg_dt = DerivativeVar(mo.x[5], wrt=mo.t)
 mo.dxp_dt = DerivativeVar(mo.x[6], wrt=mo.t)
 
-discretizer = TransformationFactory('dae.')
-discretizer.apply(mo, nfe=60)
+discretizer = TransformationFactory('dae.finite_difference')
+discretizer.apply(mo, nfe=60, wrt = mo.t, scheme='FORWARD')
 
 
 
@@ -101,14 +105,14 @@ def _initxi(am, i):
     return am.x[i, 0] == am.x_init[i, 0]
 mo.x_con = Constraint(mo.n, rule=_initxi)
 def _inittr(am):
-    return am.Tr[0] == am.Tr_init
-mo.tr_con = Constraint(rule=_inittr)
+    return am.Tr[am.T].fix(am.Trinit)
+mo.tr_con = Constraint(mo.T, rule=_inittr)
 def _initfa(am):
-    return am.fa[0] == am.fa_init
-mo.fa_con = Constraint(rule=_initfa)
+    return am.fa[am.T].fix(am.fa_init)
+mo.fa_con = Constraint(mo.T, rule=_initfa)
 def _initfb(am):
-    return am.fb[0] == am.fb_init 
-mo.fb_con = Constraint(rule=_initfb)
+    return am.fb[am.T].fix(am.fb_init) 
+mo.fb_con = Constraint(mo.T, rule=_initfb)
 
 # # Piecewise constant inputs 
 # def _piecewisefa(am, t):
