@@ -6,27 +6,28 @@ from pyomo.dae import *
 # 
 
 mo = AbstractModel()
-mo.n = Param(within=NonNegativeIntegers) # 1x1
-mo.m = Param(within=NonNegativeIntegers) # 1x1
+# Parameters 
+mo.n = Param() # 1x1
+mo.m = Param() # 1x1
 mo.I = RangeSet(1, mo.m) # mx1 
 mo.J = RangeSet(1, mo.n) # nx1
 mo.A = Param(mo.I) # mx1 
 mo.Ea = Param(mo.I) # mx1
-mo.W = Param(within=PositiveReals) # 1x1 
-# mo.fa = Param(within=PositiveReals) # 1x1 may change this, this is a disturbance variable 
-mo.fb_cons = Param(RangeSet(1, 2), within=PositiveReals) # 2x1 
-mo.Tr_cons = Param(RangeSet(1, 2), within=PositiveReals) # 2x1 
+mo.W = Param() # 1x1  
+mo.fb_cons = Param(RangeSet(1, 2)) # 2x1 
+mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
+mo.t_range = Param(RangeSet(1, 2)) # 2x1 
+mo.x_init = Param(mo.J) # nx1
+mo.Tr_init = Param()
+mo.fa_init = Param()
+mo.fb_init = Param()
 
-mo.t = ContinuousSet(bounds = (0, 50)) # (tf - t0)/h x 1
+# Variables 
+mo.t = ContinuousSet(bounds = (mo.t_range[1], mo.t_range[2])) # (tf - t0)/h x 1
 mo.x = Var(mo.J, mo.t)
 mo.fb = Var(mo.t)
 mo.fa = Var(mo.t)
 mo.Tr = Var(mo.t)
-
-x_init = Param(mo.J, initialize=(0.09576092651018556, 0.38800254944550255, 0.015975230722923693, 0.28492243697452413, 0.10931645678940315, 0.10602239955746103))
-Tr_init = Param(initialize=365.9045240211792)
-fa_init = Param(initialize=2.4)
-fb_init = Param(initialize=6.091109369944852)
 
 # Rate equation 
 def k(am, I):

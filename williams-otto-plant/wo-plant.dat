@@ -11,7 +11,7 @@ param Ea :=
     3 -11111
     ;
 param W := 2104.7;
-param fa := 2.4; # Note that this will be a time varying piecewise constant function
+param fa := 2.4; 
 param fb_cons := 
     1 2
     2 10
@@ -20,11 +20,14 @@ param Tr_cons :=
     1 323.15
     2 423.15
     ;
+param t_range := 
+    1 0 
+    2 50
+    ;
 # Initial conditions 
 param Tr_init := 365.9045240211792;
 param fb_init := 6.091109369944852;
 param fa_init := 2.4;  
-param fa_dis := 1.2;
 param x_init := 
     1 0.09576092651018556
     2 0.38800254944550255
@@ -33,5 +36,4 @@ param x_init :=
     5 0.10931645678940315
     6 0.10602239955746103
     ;
-# Domain 
-set t := 0 50; 
+
