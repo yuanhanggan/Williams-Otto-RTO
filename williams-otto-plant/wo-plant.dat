@@ -20,8 +20,10 @@ param Tr_cons :=
     1 323.15
     2 423.15
     ;
+# Initial conditions 
 param Tr_init := 365.9045240211792;
 param fb_init := 6.091109369944852;
+param fa_init := 2.4;  
 param x_init := 
     1 0.09576092651018556
     2 0.38800254944550255
@@ -30,4 +32,5 @@ param x_init :=
     5 0.10931645678940315
     6 0.10602239955746103
     ;
+# Domain 
 set t := 0 50; 
