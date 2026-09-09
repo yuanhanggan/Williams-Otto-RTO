@@ -28,4 +28,26 @@ def _initcon(m, i):
     if i == 0 or i == 1:
         return Constraint.Skip
     return m.u[i, 0] == sin(m.pi*i)
-    
+
+def _lowerbound(m, j): 
+    return m.u[0, j] == 0
+
+def _upperbound(m, j):
+    return m.pi*exp(-j) + m.dudx[1, j] == 0
+
+# Instantiate constraints 
+m.pde = Constraint(m.x, m.t, rule=_pde)
+m.initcon = Constraint(m.x, rule=_initcon)
+m.lowerbound = Constraint(m.t, rule=_lowerbound)
+m.upperbound = Constraint(m.t, rule=_upperbound)
+
+# Declare objective
+m.obj = Objective(expr=1)
+
+# Discretize using Finite Difference and Collocation 
+discretizer = TransformationFactory('dae.finite_difference')
+discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.x, scheme='LAGRANGE-RADAU')
+
+solver = SolverFactory('ipopt')
+results = solver.solve(m, tee=True)
+
