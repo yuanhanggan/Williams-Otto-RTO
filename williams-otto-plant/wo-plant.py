@@ -4,9 +4,9 @@ from pyomo.dae import *
 # 
 # Model 
 # 
-
 mo = AbstractModel()
-# Parameters 
+
+# Parameter 
 mo.n = Param() # 1x1
 mo.m = Param() # 1x1
 mo.I = RangeSet(1, mo.m) # mx1 
@@ -18,29 +18,22 @@ mo.fb_cons = Param(RangeSet(1, 2)) # 2x1
 mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.t_range = Param(RangeSet(1, 2)) # 2x1 
 mo.x_init = Param(mo.J) # nx1
-mo.Tr_init = Param()
-mo.fa_init = Param()
-mo.fb_init = Param()
+mo.Tr_init = Param() # 1x1 
+mo.fa_init = Param() # 1x1 
+mo.fb_init = Param() # 1x1 
 
-# Variables 
+# Variable 
 mo.t = ContinuousSet(bounds = (mo.t_range[1], mo.t_range[2])) # (tf - t0)/h x 1
 mo.x = Var(mo.J, mo.t)
 mo.fb = Var(mo.t)
 mo.fa = Var(mo.t)
 mo.Tr = Var(mo.t)
 
-# Rate equation 
+# Rate  
 def k(am, I):
     return am.A[I] * exp(am.Ea[I] / am.Tr)
 
-# Objective expression 
-# def obj_rule(am):
-#     return -1 * ((5554.1 * (am.fa + am.fb) * am.x[6]) \
-#     + (125.91 * (am.fa + am.fb) * am.x[4]) \
-#     - (370.3 * am.fa) \
-#     - (555.42 * am.fb))
-
-# Derivative expressions
+# Derivative 
 mo.dxa_dt = DerivativeVar(mo.x[1], wrt=mo.t)
 mo.dxb_dt = DerivativeVar(mo.x[2], wrt=mo.t)
 mo.dxc_dt = DerivativeVar(mo.x[3], wrt=mo.t)
@@ -50,8 +43,6 @@ mo.dxp_dt = DerivativeVar(mo.x[6], wrt=mo.t)
 
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply(mo, nfe=60, wrt = mo.t, scheme='FORWARD')
-
-
 
 # Differential mass balances
 def _xa_rule(am, t):
@@ -94,26 +85,27 @@ def _xp_rule(am, t):
     + (k(am, 2) * am.x[2] * am.x[3] * am.W) \
     - 0.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
+
 # Inequality constraints
 def fb_rule(am):
     return inequality(am.fb_cons[1], am.fb, am.fb_cons[2])
+mo.fb_rule = Constraint(rule=fb_rule)
 def tr_rule(am):
     return inequality(am.Tr_cons[1], am.Tr, am.Tr_cons[2])
-mo.fb_rule = Constraint(rule=fb_rule)
 mo.tr_rule = Constraint(rule=tr_rule)
+
 # Setting initial conditions 
 def _initxi(am, i): 
     return am.x[i, 0] == am.x_init[i, 0]
 mo.x_con = Constraint(mo.n, rule=_initxi)
 def _inittr(am):
     return am.Tr[am.T].fix(am.Trinit)
-mo.tr_con = Constraint(mo.T, rule=_inittr)
+mo.tr_con = Constraint(rule=_inittr)
 def _initfa(am):
     return am.fa[am.T].fix(am.fa_init)
-mo.fa_con = Constraint(mo.T, rule=_initfa)
+mo.fa_con = Constraint(rule=_initfa)
 def _initfb(am):
     return am.fb[am.T].fix(am.fb_init) 
-mo.fb_con = Constraint(mo.T, rule=_initfb)
+mo.fb_con = Constraint(rule=_initfb)
 
-# # Piecewise constant inputs 
-# def _piecewisefa(am, t):
+
