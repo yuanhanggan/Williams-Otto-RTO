@@ -1,0 +1,32 @@
+param m := 3; 
+param n := 6;
+param A :=
+    1 1.6599e6
+    2 7.2117e8
+    3 2.6745e12
+    ;
+param Ea := 
+    1 -6666.7
+    2 -8333.3
+    3 -11111
+    ;
+param W := 2104.7;
+param fa := 2.4; # Note that this will be a time varying piecewise constant function
+param fb_cons := 
+    1 2
+    2 10
+    ;
+param Tr_cons := 
+    1 323.15
+    2 423.15
+    ;
+param Tr_init := 365.9045240211792;
+param fb_init := 6.091109369944852;
+param x_init := 
+    1 0.09576092651018556
+    2 0.38800254944550255
+    3 0.015975230722923693
+    4 0.28492243697452413
+    5 0.10931645678940315
+    6 0.10602239955746103
+    ;
