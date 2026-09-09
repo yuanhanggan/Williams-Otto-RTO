@@ -86,12 +86,15 @@ def tr_rule(am):
     return inequality(am.Tr_cons[1], am.Tr, am.Tr_cons[2])
 
 # Setting initial conditions 
-mo.x[1, 0] = mo.x_init[1]
-mo.x[2, 0] = mo.x_init[2]
-mo.x[3, 0] = mo.x_init[3]
-mo.x[4, 0] = mo.x_init[4]
-mo.x[5, 0] = mo.x_init[5]
-mo.x[6, 0] = mo.x_init[6]
-mo.Tr[0] = mo.Tr_init
-mo.fa[0] = mo.fa_init
-mo.fb[0] = mo.fb_init
+def _initxi(am, i): 
+    return am.x[i, 0] == am.x_init[i, 0]
+def _inittr(am):
+    return am.Tr[0] == am.Tr_init
+def _initfa(am):
+    return am.fa[0] == am.fa_init
+def _initfb(am):
+    return am.fb[0] == am.fb_init 
+
+# Piecewise constant inputs 
+def _piecewisefa(am, t):
+    
