@@ -45,7 +45,7 @@ m.upperbound = Constraint(m.t, rule=_upperbound)
 m.obj = Objective(expr=1)
 
 # Discretize using Finite Difference and Collocation 
-discretizer = TransformationFactory('dae.finite_difference')
+discretizer = TransformationFactory('dae.collocation')
 discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.x, scheme='LAGRANGE-RADAU')
 
 solver = SolverFactory('ipopt')
