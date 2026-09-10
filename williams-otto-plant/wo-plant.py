@@ -17,7 +17,6 @@ mo.W = Param() # 1x1
 mo.fb_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.t_range = Param(RangeSet(1, 2)) # 2x1 
-# print(f"tsettesttest{mo.fb_cons[1]}")
 mo.x_init = Param(mo.J) # nx1
 mo.Tr_init = Param() # 1x1 
 mo.fa_init = Param() # 1x1 
@@ -89,8 +88,9 @@ def tr_rule(am):
 mo.tr_rule = Constraint(rule=tr_rule)
 
 # Setting initial conditions 
-def _initxi(am, i): 
-    return am.x[i, 0] == am.x_init[i, 0]
+def _initxi(am): 
+    return (am.x[i, 0] for i in am.J == am.x_init[i])
+
 mo.x_con = Constraint(mo.n, rule=_initxi)
 print(f"test{mo.fb_cons[1]}") # code breaks here
 def _inittr(am):
