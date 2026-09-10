@@ -17,6 +17,7 @@ mo.W = Param() # 1x1
 mo.fb_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.t_range = Param(RangeSet(1, 2)) # 2x1 
+print(f"tsettesttest{mo.fb_cons[1]}")
 mo.x_init = Param(mo.J) # nx1
 mo.Tr_init = Param() # 1x1 
 mo.fa_init = Param() # 1x1 
