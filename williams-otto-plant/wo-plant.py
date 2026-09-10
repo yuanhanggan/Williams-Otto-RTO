@@ -29,6 +29,7 @@ mo.fb = Var(mo.t)
 mo.fa = Var(mo.t)
 mo.Tr = Var(mo.t)
 
+# Note that we need to make sure fa, fb, Tr are functions of time
 # Rate  
 def k(am, I):
     return am.A[I] * exp(am.Ea[I] / am.Tr)
@@ -40,20 +41,20 @@ mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t) # nxt
 def _xa_rule(am, t):
     if t == 0: 
         return Constraint.Skip
-    return am.dx_dt[1, t] == (1 / am.w) * (am.fa - ((am.fa + am.fb) * am.x[1]) \
+    return am.dx_dt[1, t] == (1 / am.W) * (am.fa - ((am.fa + am.fb) * am.x[1]) \
     - (k(am, 1) * am.x[1] * am.x[2] * am.W))
 mo.xa_rule = Constraint(mo.t, rule=_xa_rule)
 def _xb_rule(am, t):
     if t == 0: 
         return Constraint.Skip
-    return am.dx_dt[2, t] == (1 / am.w) * (am.fb - ((am.fa + am.fb) * am.x[2]) \
+    return am.dx_dt[2, t] == (1 / am.W) * (am.fb - ((am.fa + am.fb) * am.x[2]) \
     - (k(am, 1) * am.x[1] * am.x[2] * am.W) \
     - (k(am, 2) * am.x[2] * am.x[3] * am.W))
 mo.xb_rule = Constraint(mo.t, rule=_xb_rule)
 def _xc_rule(am, t): 
     if t == 0: 
         return Constraint.Skip
-    return am.dx_dt[3, t] == (1 / am.w) * ((-1 * (am.fa + am.fb) * am.x[3]) \
+    return am.dx_dt[3, t] == (1 / am.W) * ((-1 * (am.fa + am.fb) * am.x[3]) \
     + 2 * (k(am, 1) * am.x[1] * am.x[2] * am.W) \
     - 2 * (k(am, 2) * am.x[2] * am.x[3] * am.W) \
     - (k(am, 3) * am.x[3] * am.x[6] * am.W))
@@ -61,19 +62,19 @@ mo.xc_rule = Constraint(mo.t, rule=_xc_rule)
 def _xe_rule(am, t): 
     if t == 0: 
         return Constraint.Skip
-    return am.dx_dt[4, t] == (1 / am.w) * ((-1 * (am.fa + am.fb) * am.x[4]) \
+    return am.dx_dt[4, t] == (1 / am.W) * ((-1 * (am.fa + am.fb) * am.x[4]) \
     + 2 * (k(am, 2) * am.x[2] * am.x[3] * am.W))
 mo.xe_rule = Constraint(mo.t, rule=_xe_rule)
 def _xg_rule(am, t): 
     if t == 0: 
         return Constraint.Skip
-    return am.dx_dt[5, t] == (1 / am.w) * ((-1 * (am.fa + am.fb) * am.x[5]) \
+    return am.dx_dt[5, t] == (1 / am.W) * ((-1 * (am.fa + am.fb) * am.x[5]) \
     + 1.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W))
 mo.xg_rule = Constraint(mo.t, rule=_xg_rule)
 def _xp_rule(am, t): 
     if t == 0: 
         return Constraint.Skip
-    return am.dxp_dt[6, t] == (1 / am.w) * ((-1 * (am.fa + am.fb) * am.x[6]) \
+    return am.dxp_dt[6, t] == (1 / am.W) * ((-1 * (am.fa + am.fb) * am.x[6]) \
     + (k(am, 2) * am.x[2] * am.x[3] * am.W) \
     - 0.5 * (k(am, 3) * am.x[3] * am.x[6] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
@@ -88,13 +89,13 @@ def tr_rule(am):
 mo.tr_rule = Constraint(rule=tr_rule)
 
 # Setting initial conditions 
-def _initxi(am): 
-    return (am.x[i, 0] for i in am.J == am.x_init[i])
+def _initxi(am, i): 
+    return (am.x[i, 0] == am.x_init[i])
 
-mo.x_con = Constraint(mo.n, rule=_initxi)
-print(f"test{mo.fb_cons[1]}") # code breaks here
+mo.x_con = Constraint(mo.J, rule=_initxi)
+# print(f"test{mo.fb_cons[1]}") # code breaks here
 def _inittr(am):
-    return am.Tr[am.T].fix(am.Trinit)
+    return am.Tr[am.T].fix(am.Tr_init)
 mo.tr_con = Constraint(rule=_inittr)
 def _initfa(am):
     return am.fa[am.T].fix(am.fa_init)
@@ -103,6 +104,7 @@ def _initfb(am):
     return am.fb[am.T].fix(am.fb_init) 
 mo.fb_con = Constraint(rule=_initfb)
 
-discretizer = TransformationFactory('dae.finite_difference')
 
-discretizer.apply(mo, nfe=60, wrt = mo.t, scheme='FORWARD')
+# discretizer = TransformationFactory('dae.finite_difference')
+# discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='FORWARD')
+# print(f"test{mo.fb_cons[1]}") # code breaks here
