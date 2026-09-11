@@ -36,7 +36,7 @@ def k(am, I, t):
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t) # nxt 
 
-# Differential mass balances
+# Differential mass balances 
 def _xa_rule(am, t):
     if t == 0: 
         return Constraint.Skip
@@ -103,11 +103,11 @@ mo.fb_con = Constraint(mo.t, rule=_initfb)
 # Faux objective 
 mo.obj = Objective(expr=1)
 
-# discretizer = TransformationFactory('dae.finite_difference')
-# discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='FORWARD')
-
-# Test
-instance = mo.create_instance('wo-plant.dat')
+# Run
+ist = mo.create_instance('wo-plant.dat')
+# Discretizer
+discretizer = TransformationFactory('dae.finite_difference')
+discretizer.apply_to(ist, nfe=100, wrt=mo.t, scheme='FORWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(instance, tee=True)
+results = solver.solve(ist, tee=True)
