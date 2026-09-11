@@ -104,17 +104,18 @@ def _initfb(am, i):
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 # Run
+sv_dir = os.path.join(os.getcwd(), datetime.datetime.now().strftime("%y%m%d%H%M"))
+os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='FORWARD')
 ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(ist, tee=True)
+results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
 
 # Saving results 
-sv_dir = os.path.join(os.getcwd(), datetime.datetime.now().strftime("%y%m%d%H%M"))
-os.makedirs(sv_dir)
+
 res = pd.DataFrame(index=list(ist.t))
 res.index.name = 't'
 for v in ist.component_objects(Var, active=True):
