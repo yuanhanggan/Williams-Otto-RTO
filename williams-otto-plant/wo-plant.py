@@ -1,9 +1,9 @@
 from pyomo.environ import * 
 from pyomo.dae import * 
 import pandas as pd 
-# 
+import os, datetime
+
 # Model 
-# 
 mo = AbstractModel()
 
 # Parameter 
@@ -103,7 +103,6 @@ def _initfb(am, i):
     return am.fb[i] == am.fb_init
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
-
 # Run
 ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
@@ -113,9 +112,9 @@ solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True)
 
-
 # Saving results 
-
+sv_dir = os.path.join(os.getcwd(), datetime.datetime.now().strftime("%y%m%d%H%M"))
+os.makedirs(sv_dir)
 res = pd.DataFrame(index=list(ist.t))
 res.index.name = 't'
 for v in ist.component_objects(Var, active=True):
@@ -126,4 +125,8 @@ for v in ist.component_objects(Var, active=True):
         J, _ = subsets
         for j in J:   
             res[f"{v.name}_{j}"] = [value(v[j, i]) for i in ist.t]
-res.to_csv("wo.csv")
+res.to_csv(os.path.join(sv_dir, "wo.csv"))
+with open(os.path.join(sv_dir, "wo.txt") , 'w') as file:
+    ist.pprint(ostream=file)
+
+
