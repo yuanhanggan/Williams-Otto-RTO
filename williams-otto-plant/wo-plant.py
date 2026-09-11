@@ -24,7 +24,7 @@ mo.fb_init = Param() # 1x1
 
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
-mo.x = Var(mo.J, mo.t) # nxt 
+mo.x = Var(mo.J, mo.t, bounds = (0, 1)) # nxt 
 mo.fb = Var(mo.t) # 1xt 
 mo.fa = Var(mo.t) # 1xt
 mo.Tr = Var(mo.t, initialize=300.0) # 1xt
@@ -93,9 +93,9 @@ mo.x_con = Constraint(mo.J, rule=_initxi)
 def _initxf(am, i):
     return (am.x[i, am.t.last()] == am.x_init[i])
 mo.x_conf = Constraint(mo.J, rule=_initxf)
-def _inittr(am, i):
-    return am.Tr[i] == am.Tr_init
-mo.tr_con = Constraint(mo.t, rule=_inittr)
+def _inittr(am):
+    return am.Tr[0] == am.Tr_init
+mo.tr_con = Constraint(rule=_inittr)
 def _initfa(am, i):
     return am.fa[i] == am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
