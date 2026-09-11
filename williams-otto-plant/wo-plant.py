@@ -27,7 +27,7 @@ mo.t = ContinuousSet(bounds = (0, 50)) # tx1
 mo.x = Var(mo.J, mo.t) # nxt 
 mo.fb = Var(mo.t) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t) # 1xt
+mo.Tr = Var(mo.t, initialize=300.0) # 1xt
 
 # Rate  
 def k(am, I, t):
@@ -100,7 +100,14 @@ def _initfb(am, i):
     return am.fb[i] == am.fb_init
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
+# Faux objective 
+mo.obj = Objective(expr=1)
 
 # discretizer = TransformationFactory('dae.finite_difference')
 # discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='FORWARD')
-# print(f"test{mo.fb_cons[1]}") # code breaks here
+
+# Test
+instance = mo.create_instance('wo-plant.dat')
+solver = SolverFactory('ipopt')
+solver.options['halt_on_ampl_error'] = 'yes'
+results = solver.solve(instance, tee=True)
