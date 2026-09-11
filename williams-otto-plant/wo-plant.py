@@ -90,7 +90,9 @@ mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
 mo.x_con = Constraint(mo.J, rule=_initxi)
-def _initxf(am, f):
+def _initxf(am, i):
+    return (am.x[i, am.t.last()] == am.x_init[i])
+mo.x_conf = Constraint(mo.J, rule=_initxf)
 def _inittr(am, i):
     return am.Tr[i] == am.Tr_init
 mo.tr_con = Constraint(mo.t, rule=_inittr)
@@ -101,8 +103,6 @@ def _initfb(am, i):
     return am.fb[i] == am.fb_init
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
-# Faux objective 
-# mo.obj = Objective(expr=1)
 
 # Run
 ist = mo.create_instance('wo-plant.dat')
