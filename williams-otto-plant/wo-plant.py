@@ -23,7 +23,7 @@ mo.fa_init = Param() # 1x1
 mo.fb_init = Param() # 1x1 
 
 # Variable 
-mo.t = ContinuousSet(bounds = (0, 50)) # tx1
+mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
 mo.x = Var(mo.J, mo.t) # nxt 
 mo.fb = Var(mo.t) # 1xt 
 mo.fa = Var(mo.t) # 1xt
@@ -90,6 +90,7 @@ mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
 mo.x_con = Constraint(mo.J, rule=_initxi)
+def _initxf(am, f):
 def _inittr(am, i):
     return am.Tr[i] == am.Tr_init
 mo.tr_con = Constraint(mo.t, rule=_inittr)
@@ -101,13 +102,20 @@ def _initfb(am, i):
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 # Faux objective 
-mo.obj = Objective(expr=1)
+# mo.obj = Objective(expr=1)
 
 # Run
 ist = mo.create_instance('wo-plant.dat')
-# Discretizer
 discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(ist, nfe=100, wrt=mo.t, scheme='FORWARD')
+discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='FORWARD')
+ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True)
+
+# Saving results 
+# x, fb, fa, Tr, dx_dt
+for v in ist.component_objects(Var, active=True):
+    print("Variable", v)
+    for index in v: 
+        print(" ", index, value(v[index]))
