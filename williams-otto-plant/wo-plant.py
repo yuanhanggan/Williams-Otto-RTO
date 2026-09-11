@@ -1,6 +1,6 @@
 from pyomo.environ import * 
 from pyomo.dae import * 
-
+import pandas as pd 
 # 
 # Model 
 # 
@@ -90,9 +90,9 @@ mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
 mo.x_con = Constraint(mo.J, rule=_initxi)
-def _initxf(am, i):
-    return (am.x[i, am.t.last()] == am.x_init[i])
-mo.x_conf = Constraint(mo.J, rule=_initxf)
+# def _initxf(am, i):
+    # return (am.x[i, am.t.last()] == am.x_init[i])
+# mo.x_conf = Constraint(mo.J, rule=_initxf)
 def _inittr(am):
     return am.Tr[0] == am.Tr_init
 mo.tr_con = Constraint(rule=_inittr)
@@ -113,9 +113,17 @@ solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True)
 
+
 # Saving results 
-# x, fb, fa, Tr, dx_dt
+
+res = pd.DataFrame(index=list(ist.t))
+res.index.name = 't'
 for v in ist.component_objects(Var, active=True):
-    print("Variable", v)
-    for index in v: 
-        print(" ", index, value(v[index]))
+    subsets = list(v.index_set().subsets())
+    if v.dim() == 1: 
+        res[v.name] = [value(v[i]) for i in ist.t]
+    elif v.dim() == 2: 
+        J, _ = subsets
+        for j in J:   
+            res[f"{v.name}_{j}"] = [value(v[j, i]) for i in ist.t]
+res.to_csv("wo.csv")
