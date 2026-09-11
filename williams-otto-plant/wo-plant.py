@@ -25,11 +25,10 @@ mo.fb_init = Param() # 1x1
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 50)) # tx1
 mo.x = Var(mo.J, mo.t) # nxt 
-mo.fb = Var(mo.t)
-mo.fa = Var(mo.t)
-mo.Tr = Var(mo.t)
+mo.fb = Var(mo.t) # 1xt 
+mo.fa = Var(mo.t) # 1xt
+mo.Tr = Var(mo.t) # 1xt
 
-# Note that we need to make sure fa, fb, Tr are functions of time
 # Rate  
 def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
@@ -74,11 +73,10 @@ mo.xg_rule = Constraint(mo.t, rule=_xg_rule)
 def _xp_rule(am, t): 
     if t == 0: 
         return Constraint.Skip
-    return am.dxp_dt[6, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[6, t]) \
+    return am.dx_dt[6, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[6, t]) \
     + (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
     - 0.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
-
 
 # Inequality constraints
 def fb_rule(am, t):
@@ -92,15 +90,15 @@ mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
 mo.x_con = Constraint(mo.J, rule=_initxi)
-def _inittr(am):
-    return am.Tr[am.t].fix(am.Tr_init)
-mo.tr_con = Constraint(rule=_inittr)
-def _initfa(am):
-    return am.fa[am.t].fix(am.fa_init)
-mo.fa_con = Constraint(rule=_initfa)
-def _initfb(am):
-    return am.fb[am.t].fix(am.fb_init) 
-mo.fb_con = Constraint(rule=_initfb)
+def _inittr(am, i):
+    return am.Tr[i] == am.Tr_init
+mo.tr_con = Constraint(mo.t, rule=_inittr)
+def _initfa(am, i):
+    return am.fa[i] == am.fa_init
+mo.fa_con = Constraint(mo.t, rule=_initfa)
+def _initfb(am, i):
+    return am.fb[i] == am.fb_init
+mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 
 # discretizer = TransformationFactory('dae.finite_difference')
