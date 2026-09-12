@@ -27,7 +27,7 @@ mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
 mo.x = Var(mo.J, mo.t, bounds = (0, 1)) # nxt 
 mo.fb = Var(mo.t) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, initialize=300.0) # 1xt
+mo.Tr = Var(mo.t, initialize=365.0) # 1xt
 
 # Rate  
 def k(am, I, t):
@@ -115,7 +115,6 @@ solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
 
 # Saving results 
-
 res = pd.DataFrame(index=list(ist.t))
 res.index.name = 't'
 for v in ist.component_objects(Var, active=True):
