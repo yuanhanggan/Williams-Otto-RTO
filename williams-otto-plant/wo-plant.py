@@ -104,7 +104,7 @@ def _initfb(am, i):
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 # Run
-sv_dir = os.path.join(os.getcwd(), datetime.datetime.now().strftime("%y%m%d%H%M"))
+sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
