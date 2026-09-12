@@ -34,7 +34,7 @@ def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
 
 # Derivative 
-mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t) # nxt 
+mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
 
 # Differential mass balances 
 def _xa_rule(am, t):
@@ -108,7 +108,7 @@ sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%
 os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='FORWARD')
+discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
 ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
