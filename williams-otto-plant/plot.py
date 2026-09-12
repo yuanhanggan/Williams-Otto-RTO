@@ -1,7 +1,5 @@
 import glob, math, os, sys
-import matplotlib.pyplot as plt 
-import pandas as pd 
-import numpy as np
+import matplotlib.pyplot as plt, matplotlib as mpl, pandas as pd, numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 plt.rcParams.update({
     "font.family": "serif",
@@ -12,8 +10,7 @@ plt.rcParams.update({
     "xtick.top": True, "ytick.right": True,
     "xtick.major.size": 4, "ytick.major.size": 4,
 })
-BLUE, RED = [0, 0.164, 0.362], [0.645, 0.113, 0.189]
-cmap = LinearSegmentedColormap.from_list("blue_red", [BLUE, RED])
+cmap=mpl.colormaps['Dark2']
 
 # Load
 names = sys.argv[1:]
@@ -28,8 +25,8 @@ nrows = math.ceil(len(cols) / 2)
 fig, axes = plt.subplots(nrows, 2, figsize = (10, 3 * nrows), squeeze=False)
 axes = axes.flatten()
 for ax, col in zip(axes, cols):
-    for (name, df), c in zip(runs.items(), cmap(np.linspace(0, 1, len(names)))):
-        ax.plot(df.index, df[col], label=name, color=c)
+    for i, (name, df) in enumerate(runs.items()):
+        ax.plot(df.index, df[col], label=name, color=cmap(i % cmap.N))
     ax.set_title(col)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 for ax in axes[len(cols):]:
