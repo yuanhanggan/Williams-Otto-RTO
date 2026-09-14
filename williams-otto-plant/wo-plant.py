@@ -35,8 +35,8 @@ def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
 
 # L2 weighted norm 
-def l2_rule(am, t):
-    return sqrt(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init)) # 1x1
+def l2_rule(am):
+    return sqrt(sum((am.q[i] * (am.x[i, am.t]  - am.x_init[i])) ** 2 for i in am.x_init)) # 1x1
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
@@ -115,7 +115,7 @@ ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
 # discretizer = TransformationFactory('dae.collocation').apply_to(ist, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
-ist.obj = Objective(mo.t, rule=l2_rule, sense=minimize)
+ist.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
