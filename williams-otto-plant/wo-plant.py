@@ -20,15 +20,17 @@ mo.fa_init = Param() # 1x1
 mo.fb_init = Param() # 1x1 
 mo.q = Param(mo.J, initialize=0.01)
 
-def _x_init(am, j):
+def _x_init(am, j, t):
     return am.x_init[j]
+def _tr_init(am, t):
+    return am.Tr_init
 
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
 mo.x = Var(mo.J, mo.t, bounds = (0, 1), initialize=_x_init) # nxt 
 mo.fb = Var(mo.t, bounds = (2, 10)) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=365.9045240211792) # 1xt
+mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=_tr_init) # 1xt
 
 # Rate  
 def k(am, I, t):
