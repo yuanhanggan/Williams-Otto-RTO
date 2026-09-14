@@ -18,9 +18,9 @@ mo.fb_cons = Param(RangeSet(1, 2)) # 2x1
 mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.t_range = Param(RangeSet(1, 2)) # 2x1 
 mo.x_init = Param(mo.J) # nx1
-mo.Tr_init = Param() # 1x1 
+mo.Tr_init = Param(bounds = (323.15, 423.15)) # 1x1 
 mo.fa_init = Param() # 1x1 
-mo.fb_init = Param() # 1x1 
+mo.fb_init = Param(bounds = (2, 10)) # 1x1 
 mo.q = Param(mo.J, initialize=0.01)
 
 # Variable 
@@ -82,14 +82,6 @@ def _xp_rule(am, t):
     + (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
     - 0.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
-
-# Inequality constraints
-def fb_rule(am, t):
-    return inequality(am.fb_cons[1], am.fb[t], am.fb_cons[2])
-mo.fb_rule = Constraint(mo.t, rule=fb_rule)
-def tr_rule(am, t):
-    return inequality(am.Tr_cons[1], am.Tr[t], am.Tr_cons[2])
-mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 
 # Setting boundary conditions 
 def _initxi(am, i): 
