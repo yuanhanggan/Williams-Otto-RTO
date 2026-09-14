@@ -21,17 +21,22 @@ mo.x_init = Param(mo.J) # nx1
 mo.Tr_init = Param() # 1x1 
 mo.fa_init = Param() # 1x1 
 mo.fb_init = Param() # 1x1 
+mo.q = Param(mo.J, initialize=0.01)
 
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
 mo.x = Var(mo.J, mo.t, bounds = (0, 1)) # nxt 
 mo.fb = Var(mo.t) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, initialize=365.0) # 1xt
 
+mo.Tr = Var(mo.t, initialize=365.0) # 1xt
 # Rate  
 def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
+
+# L2 weighted norm 
+def l2(am, t):
+    return sqrt(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init))
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
@@ -112,6 +117,12 @@ ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.collocation').apply_to(ist, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
 
 # Objective 
+def l_track_obj(am, Q, R, S):
+    return 
+
+
+
+    
 ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
