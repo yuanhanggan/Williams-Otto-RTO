@@ -36,7 +36,7 @@ def k(am, I, t):
 
 # L2 weighted norm 
 def l2_rule(am):
-    return sum(sqrt(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init)) for t in am.t) # 1x1
+    return sum(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init) for t in am.t) # 1x1
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
@@ -97,7 +97,7 @@ def _initxi(am, i):
 mo.x_con = Constraint(mo.J, rule=_initxi)
 def _initxf(am, i):
     return (am.x[i, am.t.last()] == am.x_init[i])
-# mo.x_conf = Constraint(mo.J, rule=_initxf)
+mo.x_conf = Constraint(mo.J, rule=_initxf)
 def _inittr(am):
     return am.Tr[0] == am.Tr_init
 mo.tr_con = Constraint(rule=_inittr)
@@ -117,8 +117,8 @@ ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
 # discretizer = TransformationFactory('dae.collocation').apply_to(ist, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
-# ist.obj = Objective(mo.t, rule=l2_rule, sense=minimize)
-ist.obj = Objective(expr=1)
+ist.obj = Objective(rule=l2_rule, sense=minimize)
+# ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
