@@ -18,17 +18,17 @@ mo.fb_cons = Param(RangeSet(1, 2)) # 2x1
 mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
 mo.t_range = Param(RangeSet(1, 2)) # 2x1 
 mo.x_init = Param(mo.J) # nx1
-mo.Tr_init = Param(bounds = (323.15, 423.15)) # 1x1 
+mo.Tr_init = Param() # 1x1 
 mo.fa_init = Param() # 1x1 
-mo.fb_init = Param(bounds = (2, 10)) # 1x1 
+mo.fb_init = Param() # 1x1 
 mo.q = Param(mo.J, initialize=0.01)
 
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
 mo.x = Var(mo.J, mo.t, bounds = (0, 1)) # nxt 
-mo.fb = Var(mo.t) # 1xt 
+mo.fb = Var(mo.t, bounds = (2, 10)) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, initialize=365.0) # 1xt
+mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=365.0) # 1xt
 
 # Rate  
 def k(am, I, t):
