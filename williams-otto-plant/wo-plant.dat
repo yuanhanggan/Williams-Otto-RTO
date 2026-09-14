@@ -11,18 +11,6 @@ param Ea :=
     3 -11111
     ;
 param W := 2104.7;
-param fb_cons := 
-    1 2
-    2 10
-    ;
-param Tr_cons := 
-    1 323.15
-    2 423.15
-    ;
-param t_range := 
-    1 0 
-    2 50
-    ;
 # Initial conditions 
 param Tr_init := 365.9045240211792;
 param fb_init := 6.091109369944852;

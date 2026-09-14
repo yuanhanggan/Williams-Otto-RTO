@@ -14,9 +14,6 @@ mo.J = RangeSet(1, mo.n) # nx1
 mo.A = Param(mo.I) # mx1 
 mo.Ea = Param(mo.I) # mx1
 mo.W = Param() # 1x1  
-mo.fb_cons = Param(RangeSet(1, 2)) # 2x1 
-mo.Tr_cons = Param(RangeSet(1, 2)) # 2x1 
-mo.t_range = Param(RangeSet(1, 2)) # 2x1 
 mo.x_init = Param(mo.J) # nx1
 mo.Tr_init = Param() # 1x1 
 mo.fa_init = Param() # 1x1 
@@ -25,10 +22,10 @@ mo.q = Param(mo.J, initialize=0.01)
 
 # Variable 
 mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
-mo.x = Var(mo.J, mo.t, bounds = (0, 1)) # nxt 
+mo.x = Var(mo.J, mo.t, bounds = (0, 1), initialize=(0.09576, 0.38800, 0.01598, 0.29482, 0.10932, 0.10602)) # nxt 
 mo.fb = Var(mo.t, bounds = (2, 10)) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=365.0) # 1xt
+mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=365.9045240211792) # 1xt
 
 # Rate  
 def k(am, I, t):
@@ -37,6 +34,7 @@ def k(am, I, t):
 # L2 weighted norm 
 def l2_rule(am):
     return sum(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init) for t in am.t) # 1x1
+# mo.obj = Objective(rule=l2_rule, sense=minimize)
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
@@ -89,7 +87,7 @@ def _initxi(am, i):
 mo.x_con = Constraint(mo.J, rule=_initxi)
 def _initxf(am, i):
     return (am.x[i, am.t.last()] == am.x_init[i])
-mo.x_conf = Constraint(mo.J, rule=_initxf)
+# mo.x_conf = Constraint(mo.J, rule=_initxf)
 def _inittr(am):
     return am.Tr[0] == am.Tr_init
 mo.tr_con = Constraint(rule=_inittr)
@@ -97,10 +95,10 @@ def _initfa(am, i):
     return am.fa[i] == am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
 def _initfb(am, i):
-    # return am.fb[i] == am.fb_init
-    return am.fb[0] == am.fb_init
-# mo.fb_con = Constraint(mo.t, rule=_initfb)
-mo.fb_con = Constraint(rule=_initfb)
+    return am.fb[i] == am.fb_init
+    # return am.fb[0] == am.fb_init
+mo.fb_con = Constraint(mo.t, rule=_initfb)
+# mo.fb_con = Constraint(rule=_initfb)
 
 # Run
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
@@ -108,9 +106,7 @@ os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
-# discretizer = TransformationFactory('dae.collocation').apply_to(ist, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
-ist.obj = Objective(rule=l2_rule, sense=minimize)
-# ist.obj = Objective(expr=1)
+ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
