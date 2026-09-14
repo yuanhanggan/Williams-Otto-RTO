@@ -36,7 +36,7 @@ def k(am, I, t):
 
 # L2 weighted norm 
 def l2_rule(am):
-    return sqrt(sum((am.q[i] * (am.x[i, am.t]  - am.x_init[i])) ** 2 for i in am.x_init)) # 1x1
+    return sum(sqrt(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init)) for t in am.t) # 1x1
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
@@ -91,13 +91,13 @@ def tr_rule(am, t):
     return inequality(am.Tr_cons[1], am.Tr[t], am.Tr_cons[2])
 mo.tr_rule = Constraint(mo.t, rule=tr_rule)
 
-# Setting initial conditions 
+# Setting boundary conditions 
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
 mo.x_con = Constraint(mo.J, rule=_initxi)
 def _initxf(am, i):
     return (am.x[i, am.t.last()] == am.x_init[i])
-mo.x_conf = Constraint(mo.J, rule=_initxf)
+# mo.x_conf = Constraint(mo.J, rule=_initxf)
 def _inittr(am):
     return am.Tr[0] == am.Tr_init
 mo.tr_con = Constraint(rule=_inittr)
@@ -105,8 +105,10 @@ def _initfa(am, i):
     return am.fa[i] == am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
 def _initfb(am, i):
-    return am.fb[i] == am.fb_init
-mo.fb_con = Constraint(mo.t, rule=_initfb)
+    # return am.fb[i] == am.fb_init
+    return am.fb[0] == am.fb_init
+# mo.fb_con = Constraint(mo.t, rule=_initfb)
+mo.fb_con = Constraint(rule=_initfb)
 
 # Run
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
@@ -115,7 +117,8 @@ ist = mo.create_instance('wo-plant.dat')
 discretizer = TransformationFactory('dae.finite_difference')
 discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
 # discretizer = TransformationFactory('dae.collocation').apply_to(ist, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
-ist.obj = Objective(rule=l2_rule, sense=minimize)
+# ist.obj = Objective(mo.t, rule=l2_rule, sense=minimize)
+ist.obj = Objective(expr=1)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
