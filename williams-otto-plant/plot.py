@@ -1,6 +1,5 @@
 import glob, math, os, sys
-import matplotlib.pyplot as plt, matplotlib as mpl, pandas as pd, numpy as np
-from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.pyplot as plt, matplotlib as mpl, pandas as pd
 plt.rcParams.update({
     "font.family": "serif",
     "mathtext.fontset": "cm",

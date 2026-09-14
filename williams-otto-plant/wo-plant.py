@@ -20,17 +20,18 @@ mo.fa_init = Param() # 1x1
 mo.fb_init = Param() # 1x1 
 mo.q = Param(mo.J, initialize=0.01)
 
+# Initialize across time for xi and Tr
 def _x_init(am, j, t):
     return am.x_init[j]
 def _tr_init(am, t):
     return am.Tr_init
 
 # Variable 
-mo.t = ContinuousSet(bounds = (0, 3000)) # tx1
-mo.x = Var(mo.J, mo.t, bounds = (0, 1), initialize=_x_init) # nxt 
+mo.t = ContinuousSet(bounds = (0, 30)) # tx1
+mo.x = Var(mo.J, mo.t, bounds = (0, 1), initialize = _x_init) # nxt 
 mo.fb = Var(mo.t, bounds = (2, 10)) # 1xt 
 mo.fa = Var(mo.t) # 1xt
-mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize=_tr_init) # 1xt
+mo.Tr = Var(mo.t, bounds = (323.15, 423.15), initialize = _tr_init) # 1xt
 
 # Rate  
 def k(am, I, t):
@@ -42,84 +43,86 @@ def l2_rule(am):
 # mo.obj = Objective(rule=l2_rule, sense=minimize)
 
 # Derivative 
-mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize = 0) # nxt 
+mo.dx_dt = DerivativeVar(mo.x, wrt = mo.t, initialize = 0) # nxt 
 
 # Differential mass balances 
 def _xa_rule(am, t):
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[1, t] == (1 / am.W) * (am.fa[t] - ((am.fa[t] + am.fb[t]) * am.x[1, t]) \
     - (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W))
-mo.xa_rule = Constraint(mo.t, rule=_xa_rule)
+mo.xa_rule = Constraint(mo.t, rule = _xa_rule)
 def _xb_rule(am, t):
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[2, t] == (1 / am.W) * (am.fb[t] - ((am.fa[t] + am.fb[t]) * am.x[2, t]) \
     - (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W) \
     - (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W))
-mo.xb_rule = Constraint(mo.t, rule=_xb_rule)
+mo.xb_rule = Constraint(mo.t, rule = _xb_rule)
 def _xc_rule(am, t): 
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[3, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[3, t]) \
     + 2 * (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W) \
     - 2 * (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
     - (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
-mo.xc_rule = Constraint(mo.t, rule=_xc_rule)
+mo.xc_rule = Constraint(mo.t, rule = _xc_rule)
 def _xe_rule(am, t): 
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[4, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[4, t]) \
     + 2 * (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W))
-mo.xe_rule = Constraint(mo.t, rule=_xe_rule)
+mo.xe_rule = Constraint(mo.t, rule = _xe_rule)
 def _xg_rule(am, t): 
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[5, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[5, t]) \
     + 1.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
-mo.xg_rule = Constraint(mo.t, rule=_xg_rule)
+mo.xg_rule = Constraint(mo.t, rule = _xg_rule)
 def _xp_rule(am, t): 
-    if t == 0: 
+    if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt[6, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[6, t]) \
     + (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
     - 0.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
-mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
+mo.xp_rule = Constraint(mo.t, rule = _xp_rule)
 
-# Setting boundary conditions 
+# Boundary conditions 
 def _initxi(am, i): 
     return (am.x[i, 0] == am.x_init[i])
-mo.x_con = Constraint(mo.J, rule=_initxi)
-def _initxf(am, i):
-    return (am.x[i, am.t.last()] == am.x_init[i])
-# mo.x_conf = Constraint(mo.J, rule=_initxf)
+mo.x_con = Constraint(mo.J, rule = _initxi)
+# def _initxf(am, i):
+    # return (am.x[i, am.t.last()] == am.x_init[i])
+# mo.x_conf = Constraint(mo.J, rule = _initxf)
 def _inittr(am):
     return am.Tr[0] == am.Tr_init
-mo.tr_con = Constraint(rule=_inittr)
+mo.tr_con = Constraint(rule = _inittr)
 def _initfa(am, i):
     return am.fa[i] == am.fa_init
-mo.fa_con = Constraint(mo.t, rule=_initfa)
+mo.fa_con = Constraint(mo.t, rule = _initfa)
 def _initfb(am, i):
     return am.fb[i] == am.fb_init
     # return am.fb[0] == am.fb_init
-mo.fb_con = Constraint(mo.t, rule=_initfb)
+mo.fb_con = Constraint(mo.t, rule = _initfb)
 # mo.fb_con = Constraint(rule=_initfb)
 
 # Run
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
+ist.obj = Objective(expr = 1)
 discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(ist, nfe=100, wrt=ist.t, scheme='BACKWARD')
-ist.obj = Objective(expr=1)
+discretizer.apply_to(ist, nfe = 2, wrt = ist.t, scheme = 'BACKWARD')
+# discretizer = TransformationFactory('dae.collocation')
+# discretizer.apply_to(ist, nfe = 100, ncp = 3, scheme = 'LAGRANGE-RADAU')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(ist, tee=True, keepfiles=True, logfile=os.path.join(sv_dir, "wo.log"))
+results = solver.solve(ist, tee = True, keepfiles = True, logfile = os.path.join(sv_dir, "wo.log"))
 
 # Saving results 
-res = pd.DataFrame(index=list(ist.t))
+res = pd.DataFrame(index = list(ist.t))
 res.index.name = 't'
-for v in ist.component_objects(Var, active=True):
+for v in ist.component_objects(Var, active = True):
     subsets = list(v.index_set().subsets())
     if v.dim() == 1: 
         res[v.name] = [value(v[i]) for i in ist.t]
@@ -129,6 +132,6 @@ for v in ist.component_objects(Var, active=True):
             res[f"{v.name}_{j}"] = [value(v[j, i]) for i in ist.t]
 res.to_csv(os.path.join(sv_dir, "wo.csv"))
 with open(os.path.join(sv_dir, "wo.txt") , 'w') as file:
-    ist.pprint(ostream=file)
+    ist.pprint(ostream = file)
 
 
