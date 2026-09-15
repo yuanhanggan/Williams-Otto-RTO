@@ -27,7 +27,7 @@ def _tr_init(am, t):
     return am.Tr_init
 
 # Variable 
-mo.t = ContinuousSet(bounds = (0, 30)) # tx1
+mo.t = ContinuousSet(bounds = (0, 600)) # tx1
 mo.x = Var(mo.J, mo.t, bounds = (0, 1), initialize = _x_init) # nxt 
 mo.fb = Var(mo.t, bounds = (2, 10)) # 1xt 
 mo.fa = Var(mo.t) # 1xt
@@ -88,9 +88,11 @@ def _xp_rule(am, t):
 mo.xp_rule = Constraint(mo.t, rule = _xp_rule)
 
 # Boundary conditions 
-def _initxi(am, i): 
-    return (am.x[i, 0] == am.x_init[i])
-mo.x_con = Constraint(mo.J, rule = _initxi)
+# def _initxi(am, i): 
+    # return (am.x[i, 0] == am.x_init[i])
+mo.x[mo.J, 0].fix(mo.x_init[mo.J])
+# mo.x_con = Constraint(mo.J, rule = _initxi)
+
 # def _initxf(am, i):
     # return (am.x[i, am.t.last()] == am.x_init[i])
 # mo.x_conf = Constraint(mo.J, rule = _initxf)
@@ -110,11 +112,9 @@ mo.fb_con = Constraint(mo.t, rule = _initfb)
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
 ist = mo.create_instance('wo-plant.dat')
-ist.obj = Objective(expr = 1)
+ist.obj = Objective(rule=l2_rule, sense='minimize')
 discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(ist, nfe = 2, wrt = ist.t, scheme = 'BACKWARD')
-# discretizer = TransformationFactory('dae.collocation')
-# discretizer.apply_to(ist, nfe = 100, ncp = 3, scheme = 'LAGRANGE-RADAU')
+discretizer.apply_to(ist, nfe = 100, wrt = ist.t, scheme = 'BACKWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(ist, tee = True, keepfiles = True, logfile = os.path.join(sv_dir, "wo.log"))
