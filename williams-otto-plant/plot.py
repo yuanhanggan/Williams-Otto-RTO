@@ -14,10 +14,13 @@ cmap=mpl.colormaps['Dark2']
 # Load
 names = sys.argv[1:]
 runs = {}
+bounds = {}
 for name in names: 
     csv = glob.glob(os.path.join(os.path.join(os.getcwd(), "sims"), name, "*.csv"))[0]
     runs[name] = pd.read_csv(csv, index_col=0)
-
+    bounds_csv = os.path.join(os.path.join(os.getcwd(), "sims", name), "bounds.csv")
+    bounds[name] = pd.read_csv(bounds_csv, index_col=0)
+    
 # Plot
 cols = runs[names[0]].columns
 nrows = math.ceil(len(cols) / 2)

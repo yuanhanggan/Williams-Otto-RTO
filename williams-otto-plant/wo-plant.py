@@ -21,10 +21,10 @@ mo.fb_init = Param(initialize=da['fb_init']) # 1x1
 mo.q = Param(mo.J, initialize=0.01)
 
 # Variable 
-mo.t = ContinuousSet(bounds=(0, 600)) # tx1
-mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=mo.x_init) # nxt 
-mo.fb = Var(mo.t, bounds=(2, 10)) # 1xt 
-mo.fa = Var(mo.t) # 1xt
+mo.t = ContinuousSet(bounds=(0, 3000)) # tx1
+mo.x = Var(mo.J, mo.t, bounds=(0, 1)) # nxt 
+mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_init) # 1xt 
+mo.fa = Var(mo.t, initialize=mo.fa_init) # 1xt
 mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
 
 
@@ -32,10 +32,10 @@ mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
 def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
 
-# L2 weighted norm 
+# Objective 
 def l2_rule(am):
     return sum(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init) for t in am.t) # 1x1
-# mo.obj = Objective(rule=l2_rule, sense=minimize)
+mo.obj = Objective(rule=l2_rule, sense=minimize)
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
@@ -83,46 +83,49 @@ def _xp_rule(am, t):
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 
 # Boundary conditions 
-def _initxi(am, i): 
-    return (am.x[i, 0] == am.x_init[i])
-mo.x_con = Constraint(mo.J, rule = _initxi)
-# def _initxf(am, i):
-    # return (am.x[i, am.t.last()] == am.x_init[i])
-# mo.x_conf = Constraint(mo.J, rule = _initxf)
-def _inittr(am):
-    return am.Tr[0] == am.Tr_init
-mo.tr_con = Constraint(rule = _inittr)
+for j in mo.J:
+    mo.x[j, 0].fix(mo.x_init[j])
+    mo.x[j, mo.t.last()].fix(mo.x_init[j])
+mo.Tr[0].fix(mo.Tr_init)
 def _initfa(am, i):
-    return am.fa[i] == am.fa_init
-mo.fa_con = Constraint(mo.t, rule = _initfa)
+    return am.fa[i]==am.fa_init
+mo.fa_con = Constraint(mo.t, rule=_initfa)
 def _initfb(am, i):
-    return am.fb[i] == am.fb_init
-    # return am.fb[0] == am.fb_init
-mo.fb_con = Constraint(mo.t, rule = _initfb)
-# mo.fb_con = Constraint(rule=_initfb)
+    return am.fb[i]==am.fb_init
+mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 # Run
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
 discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
+discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='CENTRAL')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, "wo.log"))
 
 # Saving results 
 res = pd.DataFrame(index=list(mo.t))
+bounds = {}
 res.index.name = 't'
 for v in mo.component_objects(Var, active = True):
     subsets = list(v.index_set().subsets())
     if v.dim() == 1: 
         res[v.name] = [value(v[i]) for i in mo.t]
+        var = v[mo.t.first()]
+        bounds[v.name] = (var.lb, var.ub)
     elif v.dim() == 2: 
         J, _ = subsets
         for j in J:   
             res[f"{v.name}_{j}"] = [value(v[j, i]) for i in mo.t]
+            var = v[j, mo.t.first()]
+            bounds[f"{v.name}_{j}"] = (var.lb, var.ub) 
 res.to_csv(os.path.join(sv_dir, "wo.csv"))
 with open(os.path.join(sv_dir, "wo.txt") , 'w') as file:
     mo.pprint(ostream = file)
+pd.DataFrame.from_dict(
+    bounds, 
+    orient='index', 
+    columns=['lower', 'upper']
+).to_csv(os.path.join(sv_dir, 'bounds.csv'))
 
 
