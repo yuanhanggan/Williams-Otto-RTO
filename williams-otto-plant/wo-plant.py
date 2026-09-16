@@ -27,7 +27,6 @@ mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_init) # 1xt
 mo.fa = Var(mo.t, initialize=mo.fa_init) # 1xt
 mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
 
-
 # Rate  
 def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
