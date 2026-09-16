@@ -94,14 +94,16 @@ def _initfb(am, i):
 mo.fb_con = Constraint(mo.t, rule=_initfb)
 
 # Run
-sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
+sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
 os.makedirs(sv_dir)
-dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='FORWARD')
+dis = TransformationFactory('dae.collocation')
+dis.apply_to(mo, nfe=33, ncp=3, scheme='LAGRANGE-RADAU')
+# dis = TransformationFactory('dae.finite_difference')
+# dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, "wo.log"))
+results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'wo.log'))
 
 # Saving results 
 res = pd.DataFrame(index=list(mo.t))
@@ -116,16 +118,12 @@ for v in mo.component_objects(Var, active = True):
     elif v.dim() == 2: 
         J, _ = subsets
         for j in J:   
-            res[f"{v.name}_{j}"] = [value(v[j, i]) for i in mo.t]
+            res[f'{v.name}_{j}'] = [value(v[j, i]) for i in mo.t]
             var = v[j, mo.t.first()]
-            bounds[f"{v.name}_{j}"] = (var.lb, var.ub) 
-res.to_csv(os.path.join(sv_dir, "wo.csv"))
-with open(os.path.join(sv_dir, "wo.txt") , 'w') as file:
+            bounds[f'{v.name}_{j}'] = (var.lb, var.ub) 
+res.to_csv(os.path.join(sv_dir, 'wo.csv'))
+with open(os.path.join(sv_dir, 'wo.txt') , 'w') as file:
     mo.pprint(ostream = file)
-pd.DataFrame.from_dict(
-    bounds, 
-    orient='index', 
-    columns=['lower', 'upper']
-).to_csv(os.path.join(sv_dir, 'bounds.csv'))
+pd.DataFrame.from_dict(bounds, orient='index', columns=['lower', 'upper']).to_csv(os.path.join(sv_dir, 'bounds.csv'))
 
 
