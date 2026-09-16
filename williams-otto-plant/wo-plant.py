@@ -1,14 +1,13 @@
 from pyomo.environ import * 
 from pyomo.dae import * 
-import pandas as pd 
-import os, datetime
+import pandas as pd, os, datetime
 
 # Model 
 mo = ConcreteModel()
 da = DataPortal()
 da.load(filename='wo-plant.dat')
 
-# Parameter 
+# Parameters 
 mo.I = RangeSet(1, 3) # mx1 
 mo.J = RangeSet(1, 6) # nx1
 mo.A = Param(mo.I, initialize=da['A']) # mx1 
@@ -20,9 +19,11 @@ mo.fa_init = Param(initialize=da['fa_init']) # 1x1
 mo.fb_init = Param(initialize=da['fb_init']) # 1x1 
 mo.q = Param(mo.J, initialize=0.01)
 
-# Variable 
+# Variables 
 mo.t = ContinuousSet(bounds=(0, 3000)) # tx1
-mo.x = Var(mo.J, mo.t, bounds=(0, 1)) # nxt 
+def init_x(am, j, t):
+    return am.x_init[j]
+mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=init_x) # nxt 
 mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_init) # 1xt 
 mo.fa = Var(mo.t, initialize=mo.fa_init) # 1xt
 mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
@@ -96,8 +97,8 @@ mo.fb_con = Constraint(mo.t, rule=_initfb)
 # Run
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
-discretizer = TransformationFactory('dae.finite_difference')
-discretizer.apply_to(mo, nfe=100, wrt=mo.t, scheme='CENTRAL')
+dis = TransformationFactory('dae.finite_difference')
+dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, "wo.log"))
