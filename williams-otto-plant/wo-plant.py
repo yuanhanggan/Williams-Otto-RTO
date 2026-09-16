@@ -38,6 +38,7 @@ def l2_rule(am):
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
+mo.dfa_dt = DerivativeVar(mo.fa, wrt=mo.t, initialize=0)
 
 # Differential mass balances 
 def _xa_rule(am, t):
@@ -87,17 +88,20 @@ for j in mo.J:
     mo.x[j, mo.t.last()].fix(mo.x_init[j])
 mo.Tr[0].fix(mo.Tr_init)
 def _initfa(am, i):
-    return am.fa[i]==am.fa_init
+    if am.t >= 120:
+        return am.fa[i]==1.2
+    else:
+        return am.fa[i]==am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
-def _initfb(am, i):
-    return am.fb[i]==am.fb_init
-mo.fb_con = Constraint(mo.t, rule=_initfb)
-
+# def _initfb(am, i):
+    # return am.fb[i]==am.fb_init
+# mo.fb_con = Constraint(mo.t, rule=_initfb)
+mo.fb[0].fix(mo.fb_init)
 # Run
 sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
 os.makedirs(sv_dir)
 dis = TransformationFactory('dae.collocation')
-dis.apply_to(mo, nfe=33, ncp=3, scheme='LAGRANGE-RADAU')
+dis.apply_to(mo, nfe=25, ncp=4, scheme='LAGRANGE-RADAU')
 # dis = TransformationFactory('dae.finite_difference')
 # dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
