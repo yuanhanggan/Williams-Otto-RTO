@@ -16,7 +16,7 @@ mo.W = Param(initialize=da['W']) # 1x1
 mo.x_init = Param(mo.J, initialize=da['x_init']) # nx1
 mo.Tr_init = Param(initialize=da['Tr_init']) # 1x1 
 mo.fa_init = Param(initialize=da['fa_init']) # 1x1 
-mo.fb_init = Param(initialize=da['fb_init']) # 1x1 
+mo.fb_init = Param(initialize=da['fb_init']) # 1ddx1 
 mo.q = Param(mo.J, initialize=0.01)
 
 # Variables 
@@ -35,7 +35,6 @@ def k(am, I, t):
 # Objective 
 def l2_rule(am):
     return sum(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init) for t in am.t) # 1x1
-mo.obj = Objective(rule=l2_rule, sense=minimize)
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
@@ -98,7 +97,8 @@ mo.fb_con = Constraint(mo.t, rule=_initfb)
 sv_dir = os.path.join(os.getcwd(), "sims", datetime.datetime.now().strftime("%y%m%d%H%M"))
 os.makedirs(sv_dir)
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
+dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='FORWARD')
+mo.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, "wo.log"))
