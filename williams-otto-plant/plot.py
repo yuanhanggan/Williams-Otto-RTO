@@ -27,11 +27,11 @@ nrows = math.ceil(len(cols) / 2)
 fig, axes = plt.subplots(nrows, 2, figsize = (10, 3 * nrows), squeeze=False)
 axes = axes.flatten()
 for ax, col in zip(axes, cols):
-    for i, (name, df) in enumerate(runs.items()):
+    for i, (name, df) in enumerate(reversed(list(runs.items()))):
         ax.plot(df.index, df[col], label=name, color=cmap(i % cmap.N))
-    bound = bounds[names[0]].loc[col, ['lower', 'upper']]
-    if bound.notna().all():
-        ax.set_ylim(bound['lower'], bound['upper'])
+    # bound = bounds[names[0]].loc[col, ['lower', 'upper']]
+    # if bound.notna().all():
+        # ax.set_ylim(bound['lower'], bound['upper'])
     ax.set_title(col)
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 for ax in axes[len(cols):]:
