@@ -17,10 +17,10 @@ mo.x_init = Param(mo.J, initialize=da['x_init']) # nx1
 mo.Tr_init = Param(initialize=da['Tr_init']) # 1x1 
 mo.fa_init = Param(initialize=da['fa_init']) # 1x1 
 mo.fb_init = Param(initialize=da['fb_init']) # 1ddx1 
-mo.q = Param(mo.J, initialize=0.01)
+mo.q = Param(mo.J, initialize=0.0035)
 
 # Variables 
-mo.t = ContinuousSet(bounds=(0, 1200)) # tx1
+mo.t = ContinuousSet(bounds=(0, 1200), initialize=[200]) # tx1
 def init_x(am, j, t):
     return am.x_init[j]
 mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=init_x) # nxt 
@@ -86,10 +86,10 @@ mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 for j in mo.J:
     mo.x[j, 0].fix(mo.x_init[j])
     # mo.dx_dt[j, 0].fix(0)
-    mo.x[j, mo.t.last()].fix(mo.x_init[j])
+    # mo.x[j, mo.t.last()].fix(mo.x_init[j])
 mo.Tr[0].fix(mo.Tr_init)
 def _initfa(am, i):
-    if i >= 120:
+    if i >= 200:
         return am.fa[i]==1.2
     else:
         return am.fa[i]==am.fa_init
@@ -103,7 +103,7 @@ os.makedirs(sv_dir)
 # dis = TransformationFactory('dae.collocation')
 # dis.apply_to(mo, nfe=60, ncp=3, scheme='LAGRANGE-RADAU')
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=110, wrt=mo.t, scheme='BACKWARD')
+dis.apply_to(mo, nfe=80, wrt=mo.t, scheme='FORWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
