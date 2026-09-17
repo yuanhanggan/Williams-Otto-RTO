@@ -24,9 +24,9 @@ mo.t = ContinuousSet(bounds=(0, 1200)) # tx1
 def init_x(am, j, t):
     return am.x_init[j]
 mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=init_x) # nxt 
-mo.fb = Var(mo.t, bounds=(2, 10)) # 1xt 
+mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_init) # 1xt 
 mo.fa = Var(mo.t, initialize=mo.fa_init) # 1xt
-mo.Tr = Var(mo.t, bounds=(323.15, 423.15)) # 1xt
+mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
 
 # Rate  
 def k(am, I, t):
@@ -37,7 +37,7 @@ def l2_rule(am):
     return sum(sum((am.q[i] * (am.x[i, t]  - am.x_init[i])) ** 2 for i in am.x_init) for t in am.t) # 1x1
 
 # Derivative 
-mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t) # nxt 
+mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
 # mo.dfa_dt = DerivativeVar(mo.fa, wrt=mo.t, initialize=0)
 
 # Differential mass balances 
@@ -85,8 +85,8 @@ mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 # Boundary conditions 
 for j in mo.J:
     mo.x[j, 0].fix(mo.x_init[j])
-    mo.dx_dt[j, 0].fix(0)
-    # mo.x[j, mo.t.last()].fix(mo.x_init[j])
+    # mo.dx_dt[j, 0].fix(0)
+    mo.x[j, mo.t.last()].fix(mo.x_init[j])
 mo.Tr[0].fix(mo.Tr_init)
 def _initfa(am, i):
     if i >= 120:
@@ -94,17 +94,16 @@ def _initfa(am, i):
     else:
         return am.fa[i]==am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
-# def _initfb(am, i):
-    # return am.fb[i]==am.fb_init
-# mo.fb_con = Constraint(mo.t, rule=_initfb)
+
 mo.fb[0].fix(mo.fb_init)
+
 # Run
 sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
 os.makedirs(sv_dir)
 # dis = TransformationFactory('dae.collocation')
-# dis.apply_to(mo, nfe=20, ncp=2, scheme='LAGRANGE-RADAU')
+# dis.apply_to(mo, nfe=60, ncp=3, scheme='LAGRANGE-RADAU')
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=100, wrt=mo.t, scheme='BACKWARD')
+dis.apply_to(mo, nfe=110, wrt=mo.t, scheme='BACKWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
