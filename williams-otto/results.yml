@@ -1,0 +1,53 @@
+# ==========================================================
+# = Solver Results                                         =
+# ==========================================================
+# ----------------------------------------------------------
+#   Problem Information
+# ----------------------------------------------------------
+Problem: 
+- Lower bound: -.inf
+  Upper bound: .inf
+  Number of objectives: 1
+  Number of constraints: 8
+  Number of variables: 8
+  Sense: unknown
+# ----------------------------------------------------------
+#   Solver Information
+# ----------------------------------------------------------
+Solver: 
+- Status: ok
+  Message: Ipopt 3.14.20\x3a Optimal Solution Found
+  Termination condition: optimal
+  Id: 0
+  Error rc: 0
+  Time: 0.19182491302490234
+# ----------------------------------------------------------
+#   Solution Information
+# ----------------------------------------------------------
+Solution: 
+- number of solutions: 1
+  number of solutions displayed: 1
+- Gap: None
+  Status: optimal
+  Message: Ipopt 3.14.20\x3a Optimal Solution Found
+  Objective:
+    obj:
+      Value: -756.8730016984827
+  Variable:
+    Tr:
+      Value: 358.11346334584016
+    fb:
+      Value: 3.278314796240216
+    x[1]:
+      Value: 0.0763822938354268
+    x[2]:
+      Value: 0.3909206809687806
+    x[3]:
+      Value: 0.014408023007128078
+    x[4]:
+      Value: 0.2990914724072746
+    x[5]:
+      Value: 0.10447769036662881
+    x[6]:
+      Value: 0.11471983941476101
+  Constraint: No values
