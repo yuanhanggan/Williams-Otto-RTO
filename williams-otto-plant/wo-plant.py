@@ -100,7 +100,7 @@ mo.fa_con = Constraint(mo.t, rule=_initfa)
 
 mo.fb[0].fix(mo.fb_init)
 
-# Run
+# Runn
 sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
 os.makedirs(sv_dir)
 # dis = TransformationFactory('dae.collocation')
