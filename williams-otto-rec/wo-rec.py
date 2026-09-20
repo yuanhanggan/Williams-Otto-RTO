@@ -38,6 +38,12 @@ def k(am, I, t):
 # Objective 
 def l2_rule(am):
     return sum(sum((am.q[i] * (am.x[i, t]  - (am.x_init[i] if t < 200 else am.x_init_1_2[i]))) ** 2 for i in am.x_init) for t in am.t) # 1x1
+def eco(am):
+    return -1 * (5554.1 * (am.fa[mo.t.last()] + am.fb[mo.t.last()]) * am.x[6, mo.t.last()]  \
+    + (125.91 * ((am.fa[mo.t.last()] + am.fb[mo.t.last()])) * am.x[4, am.t.last()]) \
+    - (370.3 * am.fa[mo.t.last()]) \
+    - (555.42 * am.fb[mo.t.last()]))
+    
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
