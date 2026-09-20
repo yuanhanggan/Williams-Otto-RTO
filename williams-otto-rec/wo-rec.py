@@ -5,7 +5,7 @@ import pandas as pd, os, datetime
 # Model 
 mo = ConcreteModel()
 da = DataPortal()
-da.load(filename='wo-plant.dat')
+da.load(filename='wo-rec.dat')
 
 # Parameters 
 mo.I = RangeSet(1, 3) # mx1 
@@ -23,7 +23,7 @@ mo.fb_init_1_2 = Param(initialize=da['fb_init_1_2']) # 1x1
 mo.q = Param(mo.J, initialize=0.0035) # 1x1 
 
 # Variables 
-mo.t = ContinuousSet(bounds=(0, 1200), initialize=[200]) # tx1
+mo.t = ContinuousSet(bounds=(0, 1)) # tx1
 def init_x(am, j, t):
     return am.x_init[j]
 mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=init_x) # nxt 
@@ -41,7 +41,6 @@ def l2_rule(am):
 
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
-# mo.dfa_dt = DerivativeVar(mo.fa, wrt=mo.t, initialize=0)
 
 # Differential mass balances 
 def _xa_rule(am, t):
@@ -87,26 +86,22 @@ mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 
 # Boundary conditions 
 for j in mo.J:
-    mo.x[j, 0].fix(mo.x_init[j])
-    # mo.dx_dt[j, 0].fix(0)
+    mo.x[j, mo.t.first()].fix(mo.x_init[j])
     # mo.x[j, mo.t.last()].fix(mo.x_init[j])
-mo.Tr[0].fix(mo.Tr_init)
+mo.Tr[mo.t.first()].fix(mo.Tr_init)
 def _initfa(am, i):
     if i >= 200:
         return am.fa[i]==1.2
     else:
         return am.fa[i]==am.fa_init
 mo.fa_con = Constraint(mo.t, rule=_initfa)
-
-mo.fb[0].fix(mo.fb_init)
+mo.fb[mo.t.first()].fix(mo.fb_init)
 
 # Runn
 sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
 os.makedirs(sv_dir)
-# dis = TransformationFactory('dae.collocation')
-# dis.apply_to(mo, nfe=50, ncp=2, scheme='LAGRANGE-RADAU')
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=40, wrt=mo.t, scheme='FORWARD')
+dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
