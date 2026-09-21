@@ -6,45 +6,45 @@ import pandas as pd, os, datetime
 mo = ConcreteModel()
 da = DataPortal()
 da.load(filename='wo-rec.dat')
+sv_dir = os.path.join(os.getcwd(), 'sims', 'recursion')
+da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
+t_is = list(da_r.keys())
+x_is = ['x_1', 'x_2', 'x_3', 'x_4', 'x_5', 'x_6']
 
 # Parameters 
-mo.I = RangeSet(1, 3) # mx1 
-mo.J = RangeSet(1, 6) # nx1
-mo.A = Param(mo.I, initialize=da['A']) # mx1 
-mo.Ea = Param(mo.I, initialize=da['Ea']) # mx1
+mo.dt = Param(initialize=da['dt']) # 1x1 
+mo.x_is = Set(initialize=x_is)
+mo.A = Param(RangeSet(1, 3), initialize=da['A']) # mx1 
+mo.Ea = Param(RangeSet(1, 3), initialize=da['Ea']) # mx1
 mo.W = Param(initialize=da['W']) # 1x1  
-mo.x_init = Param(mo.J, initialize=da['x_init']) # nx1
-mo.Tr_init = Param(initialize=da['Tr_init']) # 1x1 
-mo.fa_init = Param(initialize=da['fa_init']) # 1x1 
-mo.fb_init = Param(initialize=da['fb_init']) # 1x1
-mo.x_init_1_2 = Param(mo.J, initialize=da['x_init_1_2']) # nx1 
-mo.Tr_init_1_2 = Param(initialize=da['Tr_init_1_2']) # 1x1 
-mo.fb_init_1_2 = Param(initialize=da['fb_init_1_2']) # 1x1
-mo.q = Param(mo.J, initialize=0.0035) # 1x1 
+mo.q = Param(mo.x_is, initialize=0.0035) # 1x1 
+mo.t = ContinuousSet(bounds=(t_is[-1], t_is[-1]+mo.dt))
+mo.x_i0 = Param(mo.x_is, initialize={k: da_r[t_is[-1]][k] for k in da_r[t_is[-1]] & mo.x_is}) # nx1 
+mo.Tr_0 = Param(initialize=da_r[t_is[-1]['Tr']]) # 1x1 to change
+mo.fa_0 = Param(initialize=da_r[t_is[-1]['fa']]) # 1x1 to change
+mo.fb_0 = Param(initialize=da_r[t_is[-1]['fb']]) # 1x1 to change 
 
 # Variables 
-mo.t = ContinuousSet(bounds=(0, 1)) # tx1
 def init_x(am, j, t):
-    return am.x_init[j]
-mo.x = Var(mo.J, mo.t, bounds=(0, 1), initialize=init_x) # nxt 
-mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_init) # 1xt 
-mo.fa = Var(mo.t, initialize=mo.fa_init) # 1xt
-mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_init) # 1xt
+    return am.x_i0[j]
+mo.x = Var(mo.x_is, mo.t, bounds=(0, 1), initialize=init_x) # nxt # to change 
+mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_0) # 1xt # to change
+mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_0) # 1xt # to change
+mo.fa = Var(mo.t, initialize=mo.fa_0) # 1xt # don't change for now 
 
 # Rate  
 def k(am, I, t):
     return am.A[I] * exp(am.Ea[I] / am.Tr[t])
 
-# Objective 
+# Objective # to remove 
 def l2_rule(am):
-    return sum(sum((am.q[i] * (am.x[i, t]  - (am.x_init[i] if t < 200 else am.x_init_1_2[i]))) ** 2 for i in am.x_init) for t in am.t) # 1x1
+    return sum(sum((am.q[i] * (am.x[i, t]  - (am.x_i0[i] if t < 200 else am.x_i0_1_2[i]))) ** 2 for i in am.x_i0) for t in am.t) # 1x1
 def eco(am):
     return -1 * (5554.1 * (am.fa[mo.t.last()] + am.fb[mo.t.last()]) * am.x[6, mo.t.last()]  \
     + (125.91 * ((am.fa[mo.t.last()] + am.fb[mo.t.last()])) * am.x[4, am.t.last()]) \
     - (370.3 * am.fa[mo.t.last()]) \
     - (555.42 * am.fb[mo.t.last()]))
     
-
 # Derivative 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
 
@@ -91,21 +91,16 @@ def _xp_rule(am, t):
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 
 # Boundary conditions 
-for j in mo.J:
-    mo.x[j, mo.t.first()].fix(mo.x_init[j])
-    # mo.x[j, mo.t.last()].fix(mo.x_init[j])
-mo.Tr[mo.t.first()].fix(mo.Tr_init)
+for j in RangeSet(1, 6):
+    mo.x[j, mo.t.first()].fix(mo.x_i0[j])
+    # mo.x[j, mo.t.last()].fix(mo.x_i0[j])
+mo.Tr[mo.t.first()].fix(mo.Tr_0)
 def _initfa(am, i):
-    if i >= 200:
-        return am.fa[i]==1.2
-    else:
-        return am.fa[i]==am.fa_init
+    return am.fa[i]==am.fa_0
 mo.fa_con = Constraint(mo.t, rule=_initfa)
-mo.fb[mo.t.first()].fix(mo.fb_init)
+mo.fb[mo.t.first()].fix(mo.fb_0)
 
-# Runn
-sv_dir = os.path.join(os.getcwd(), 'sims', datetime.datetime.now().strftime('%y%m%d%H%M'))
-os.makedirs(sv_dir)
+# Run
 dis = TransformationFactory('dae.finite_difference')
 dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
 mo.obj = Objective(rule=l2_rule, sense=minimize)
@@ -129,7 +124,7 @@ for v in mo.component_objects(Var, active = True):
             res[f'{v.name}_{j}'] = [value(v[j, i]) for i in mo.t]
             var = v[j, mo.t.first()]
             bounds[f'{v.name}_{j}'] = (var.lb, var.ub) 
-res.to_csv(os.path.join(sv_dir, 'wo.csv'))
+res.to_csv(os.path.join(sv_dir, 'wo.csv'), mode='a' if os.path.exists(os.path.join(sv_dir, 'wo.csv')) else 'w', header=not os.path.exists(os.path.join(sv_dir, 'wo.csv')), index=True)
 with open(os.path.join(sv_dir, 'wo.txt') , 'w') as file:
     mo.pprint(ostream = file)
 pd.DataFrame.from_dict(bounds, orient='index', columns=['lower', 'upper']).to_csv(os.path.join(sv_dir, 'bounds.csv'))
