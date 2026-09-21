@@ -9,7 +9,7 @@ da.load(filename='wo-rec.dat')
 sv_dir = os.path.join(os.getcwd(), 'sims', 'recursion')
 da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
 t_is = list(da_r.keys())
-x_is = ['x_1', 'x_2', 'x_3', 'x_4', 'x_5', 'x_6']
+x_is = [1, 2, 3, 4, 5, 6]
 
 # Parameters 
 mo.dt = Param(initialize=da['dt']) # 1x1 
@@ -41,42 +41,42 @@ def k(am, I, t):
 def _xa_rule(am, t):
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_1', t] == (1 / am.W) * (am.fa[t] - ((am.fa[t] + am.fb[t]) * am.x['x_1', t]) \
-    - (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W))
+    return am.dx_dt[1, t] == (1 / am.W) * (am.fa[t] - ((am.fa[t] + am.fb[t]) * am.x[1, t]) \
+    - (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W))
 mo.xa_rule = Constraint(mo.t, rule=_xa_rule)
 def _xb_rule(am, t):
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_2', t] == (1 / am.W) * (am.fb[t] - ((am.fa[t] + am.fb[t]) * am.x['x_2', t]) \
-    - (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
-    - (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
+    return am.dx_dt[2, t] == (1 / am.W) * (am.fb[t] - ((am.fa[t] + am.fb[t]) * am.x[2, t]) \
+    - (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W) \
+    - (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W))
 mo.xb_rule = Constraint(mo.t, rule=_xb_rule)
 def _xc_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_3', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_3', t]) \
-    + 2 * (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
-    - 2 * (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
-    - (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    return am.dx_dt[3, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[3, t]) \
+    + 2 * (k(am, 1, t) * am.x[1, t] * am.x[2, t] * am.W) \
+    - 2 * (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
+    - (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
 mo.xc_rule = Constraint(mo.t, rule=_xc_rule)
 def _xe_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_4', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_4', t]) \
-    + 2 * (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
+    return am.dx_dt[4, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[4, t]) \
+    + 2 * (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W))
 mo.xe_rule = Constraint(mo.t, rule=_xe_rule)
 def _xg_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_5', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_5', t]) \
-    + 1.5 * (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    return am.dx_dt[5, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[5, t]) \
+    + 1.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
 mo.xg_rule = Constraint(mo.t, rule=_xg_rule)
 def _xp_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
-    return am.dx_dt['x_6', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_6', t]) \
-    + (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
-    - 0.5 * (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    return am.dx_dt[6, t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x[6, t]) \
+    + (k(am, 2, t) * am.x[2, t] * am.x[3, t] * am.W) \
+    - 0.5 * (k(am, 3, t) * am.x[3, t] * am.x[6, t] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 
 # Boundary conditions 
