@@ -42,41 +42,41 @@ def _xa_rule(am, t):
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_1', t] == (1 / am.W) * (am.fa[t] - ((am.fa[t] + am.fb[t]) * am.x['x_1', t]) \
-    - (k(am, 'x_1', t) * am.x['x_1', t] * am.x['x_2', t] * am.W))
+    - (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W))
 mo.xa_rule = Constraint(mo.t, rule=_xa_rule)
 def _xb_rule(am, t):
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_2', t] == (1 / am.W) * (am.fb[t] - ((am.fa[t] + am.fb[t]) * am.x['x_2', t]) \
-    - (k(am, 'x_1', t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
-    - (k(am, 'x_2', t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
+    - (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
+    - (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
 mo.xb_rule = Constraint(mo.t, rule=_xb_rule)
 def _xc_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_3', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_3', t]) \
-    + 2 * (k(am, 'x_1', t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
-    - 2 * (k(am, 'x_2', t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
-    - (k(am, 'x_3', t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    + 2 * (k(am, 1, t) * am.x['x_1', t] * am.x['x_2', t] * am.W) \
+    - 2 * (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
+    - (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
 mo.xc_rule = Constraint(mo.t, rule=_xc_rule)
 def _xe_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_4', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_4', t]) \
-    + 2 * (k(am, 'x_2', t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
+    + 2 * (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W))
 mo.xe_rule = Constraint(mo.t, rule=_xe_rule)
 def _xg_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_5', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_5', t]) \
-    + 1.5 * (k(am, 'x_3', t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    + 1.5 * (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
 mo.xg_rule = Constraint(mo.t, rule=_xg_rule)
 def _xp_rule(am, t): 
     if t == am.t.first(): 
         return Constraint.Skip
     return am.dx_dt['x_6', t] == (1 / am.W) * ((-1 * (am.fa[t] + am.fb[t]) * am.x['x_6', t]) \
-    + (k(am, 'x_2', t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
-    - 0.5 * (k(am, 'x_3', t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
+    + (k(am, 2, t) * am.x['x_2', t] * am.x['x_3', t] * am.W) \
+    - 0.5 * (k(am, 3, t) * am.x['x_3', t] * am.x['x_6', t] * am.W))
 mo.xp_rule = Constraint(mo.t, rule=_xp_rule)
 
 # Boundary conditions 
@@ -97,7 +97,8 @@ solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'wo.log'))
 
 # Saving results 
-res = pd.DataFrame(index=list(mo.t))
+res = pd.DataFrame()
+old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna()
 bounds = {}
 res.index.name = 't'
 for v in mo.component_objects(Var, active = True):
@@ -110,7 +111,8 @@ for v in mo.component_objects(Var, active = True):
         for j in J:   
             res[f'{v.name}_{j}'] = [value(v[j, mo.t.last()])]
             bounds[f'{v.name}_{j}'] = (v[j, mo.t.first()].lb, v[j, mo.t.first()].ub) 
-res.to_csv(os.path.join(sv_dir, 'wo.csv'), mode='a', header=False, index=True)
+# res.to_csv(os.path.join(sv_dir, 'wo.csv'), mode='a', header=False, index=True)
+res = pd.concat([old, res]).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
 with open(os.path.join(sv_dir, 'wo.txt') , 'w') as file:
     mo.pprint(ostream = file)
 pd.DataFrame.from_dict(bounds, orient='index', columns=['lower', 'upper']).to_csv(os.path.join(sv_dir, 'bounds.csv'))
