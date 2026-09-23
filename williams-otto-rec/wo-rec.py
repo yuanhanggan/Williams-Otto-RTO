@@ -12,7 +12,7 @@ t_is = list(da_r.keys())
 x_is = ['x_1','x_2','x_3','x_4','x_5','x_6']
 
 # Parameters 
-mo.dt = Param(initialize=da['dt']) # 1x1 
+mo.dt = Param(initialize=int(os.environ.get('dt')), within=PositiveIntegers) # 1x1 
 mo.x_is = Set(initialize=x_is) # nx1
 mo.A = Param(RangeSet(1, 3), initialize=da['A']) # mx1 
 mo.Ea = Param(RangeSet(1, 3), initialize=da['Ea']) # mx1
@@ -94,7 +94,7 @@ mo.fb[mo.t.first()].fix(mo.fb_0)
 
 # Run
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
+dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='FORWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
