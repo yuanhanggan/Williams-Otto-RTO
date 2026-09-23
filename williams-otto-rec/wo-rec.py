@@ -6,7 +6,7 @@ import pandas as pd, os
 mo = ConcreteModel()
 da = DataPortal()
 da.load(filename='wo-rec.dat')
-sv_dir = os.path.join(os.getcwd(), 'sims', 'rec_10_fwd')
+sv_dir = os.path.join(os.getcwd(), 'sims', os.environ.get('SV_DIR'))
 da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
 t_is = list(da_r.keys())
 x_is = ['x_1','x_2','x_3','x_4','x_5','x_6']
@@ -97,7 +97,7 @@ dis = TransformationFactory('dae.finite_difference')
 dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, f'wo{t_is[-1]}.log'))
+results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
 
 # Saving results 
 res = pd.DataFrame(index=pd.Index([value(mo.t.last())], name='t'))
@@ -115,7 +115,7 @@ for v in mo.component_objects(Var, active = True):
             res[f'{v.name}_{j_idx}'] = [value(v[j, mo.t.last()])]
             bounds[f'{v.name}_{j_idx}'] = (v[j, mo.t.first()].lb, v[j, mo.t.first()].ub) 
 res = pd.concat([old, res]).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
-with open(os.path.join(sv_dir, f'wo{t_is[-1]}.txt') , 'w') as file:
+with open(os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.txt') , 'w') as file:
     mo.pprint(ostream = file)
 pd.DataFrame.from_dict(bounds, orient='index', columns=['lower', 'upper']).to_csv(os.path.join(sv_dir, 'bounds.csv'))
 
