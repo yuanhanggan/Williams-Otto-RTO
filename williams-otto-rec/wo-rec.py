@@ -27,9 +27,13 @@ mo.fb_0 = Param(initialize=da_r[t_is[-1]]['fb']) # 1x1
 # Variables 
 def init_x(am, j, t):
     return am.x_i0[j]
+def init_fb(am, t):
+    return am.fb_0
+def init_Tr(am, t):
+    return am.Tr_0
 mo.x = Var(mo.x_is, mo.t, bounds=(0, 1), initialize=init_x) # nxt  
-mo.fb = Var(mo.t, bounds=(2, 10), initialize=mo.fb_0) # 1xt 
-mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=mo.Tr_0) # 1xt 
+mo.fb = Var(mo.t, bounds=(2, 10), initialize=init_fb) # 1xt 
+mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=init_Tr) # 1xt 
 mo.fa = Var(mo.t, initialize=mo.fa_0) # 1xt 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
 
@@ -90,7 +94,7 @@ mo.fb[mo.t.first()].fix(mo.fb_0)
 
 # Run
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='FORWARD')
+dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, f'wo{t_is[-1]}.log'))
