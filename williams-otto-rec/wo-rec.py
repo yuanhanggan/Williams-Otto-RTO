@@ -92,12 +92,19 @@ def _initfa(am, i):
 mo.fa_con = Constraint(mo.t, rule=_initfa)
 mo.fb[mo.t.first()].fix(mo.fb_0)
 
+# Scaling factors 
+mo.scaling_factor = Suffix(direction=Suffix.EXPORT)
+mo.scaling_factor[mo.fb] = 1e-1
+mo.scaling_factor[mo.Tr] = 1e-2
+
 # Run
+mo_scaled = TransformationFactory('core.scale_model').create_using(mo)
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='FORWARD')
+dis.apply_to(mo_scaled, nfe=1, wrt=mo.t, scheme='BACKWARD')
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
-results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
+results = solver.solve(mo_scaled, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
+TransformationFactory('core.scale_model').propagate_solution(mo_scaled, mo)
 
 # Saving results 
 res = pd.DataFrame(index=pd.Index([value(mo.t.last())], name='t'))
