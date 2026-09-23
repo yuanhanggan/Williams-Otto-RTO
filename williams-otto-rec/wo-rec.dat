@@ -9,7 +9,7 @@ param Ea :=
     3 -11111
     ;
 param W := 2104.7;
-param dt := 15;
+param dt := 10;
 # Initial conditions 
 param Tr_init := 365.9045240211792;
 param fb_init := 6.091109369944852;
