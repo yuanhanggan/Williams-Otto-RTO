@@ -95,12 +95,19 @@ mo.fb[mo.t.first()].fix(mo.fb_0)
 # Scaling factors 
 mo.scaling_factor = Suffix(direction=Suffix.EXPORT)
 mo.scaling_factor[mo.fb] = 1e-1
+mo.scaling_factor[mo.fa] = 1e-1
 mo.scaling_factor[mo.Tr] = 1e-2
+mo.scaling_factor[mo.xa_rule] = 1e-4
+mo.scaling_factor[mo.xb_rule] = 1e-4
+mo.scaling_factor[mo.xc_rule] = 1e-4
+mo.scaling_factor[mo.xe_rule] = 1e-4
+mo.scaling_factor[mo.xg_rule] = 1e-4
+mo.scaling_factor[mo.xp_rule] = 1e-4
 
 # Run
-mo_scaled = TransformationFactory('core.scale_model').create_using(mo)
 dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo_scaled, nfe=1, wrt=mo.t, scheme='BACKWARD')
+dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
+mo_scaled = TransformationFactory('core.scale_model').create_using(mo, rename=False)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo_scaled, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))

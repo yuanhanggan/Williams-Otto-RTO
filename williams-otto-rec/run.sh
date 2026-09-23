@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-dt=40
+dt=10
 t_f=900
 
-RUN_DIR="${t_f}_${dt}_fwd"
+RUN_DIR="${t_f}_${dt}_rev_scal_6"
 export SV_DIR="$RUN_DIR"
 export dt
 BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/williams-otto-rec"
