@@ -94,14 +94,8 @@ mo.fb[mo.t.first()].fix(mo.fb_0)
 
 # Scaling factors 
 mo.scaling_factor = Suffix(direction=Suffix.EXPORT)
-mo.scaling_factor[mo.fb] = 1e-1
-mo.scaling_factor[mo.Tr] = 1e-2
-mo.scaling_factor[mo.xa_rule] = 1
-mo.scaling_factor[mo.xb_rule] = 1
-mo.scaling_factor[mo.xc_rule] = 1
-mo.scaling_factor[mo.xe_rule] = 1
-mo.scaling_factor[mo.xg_rule] = 1
-mo.scaling_factor[mo.xp_rule] = 1
+mo.scaling_factor[mo.fb] = 1e1
+mo.scaling_factor[mo.x] = 1e2
 
 # Run
 dis = TransformationFactory('dae.finite_difference')

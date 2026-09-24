@@ -52,7 +52,7 @@ for ax, (cols, cmap) in zip(axes, groups):
     ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(5))
     ax.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter(y_fmt))
     for side, pts in spine_offset.items():
-        ax.spines[side].set_position(('outward', pts))
+        ax.spines[side].set_position(('outward', pts))      
 
 fig.supylabel(r'$\|z - z_0\|_2$')
 swatches = [tuple(mpl.patches.Patch(facecolor=mpl.colormaps[cmap](s), edgecolor='black') for _, cmap in groups)
