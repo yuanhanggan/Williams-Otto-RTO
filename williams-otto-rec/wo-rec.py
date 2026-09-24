@@ -98,8 +98,10 @@ mo.scaling_factor[mo.fb] = 1e1
 mo.scaling_factor[mo.x] = 1e2
 
 # Run
-dis = TransformationFactory('dae.finite_difference')
-dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
+# dis = TransformationFactory('dae.finite_difference')
+# dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
+dis = TransformationFactory('dae.collocation')
+dis.apply_to(mo, nfe=1, wrt=mo.t, ncp=int(os.environ.get('dt')))
 mo_scaled = TransformationFactory('core.scale_model').create_using(mo, rename=False)
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-dt=8
+dt=16
+ncp=5
 t_f=900
 
-RUN_DIR="${t_f}_${dt}_scal_31"
+RUN_DIR="${t_f}_${dt}_${ncp}_col_0"
 export SV_DIR="$RUN_DIR"
 export dt
+export ncp
 BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/williams-otto-rec"
 SRC_CSV="${BASE_DIR}/wo.csv"
 DST_DIR="${BASE_DIR}/sims/${RUN_DIR}"
