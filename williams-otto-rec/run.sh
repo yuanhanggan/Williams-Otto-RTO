@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-dt=16
+dt=8
 ncp=5
 t_f=900
 
-RUN_DIR="${t_f}_${dt}_${ncp}_col_0"
+RUN_DIR="${t_f}_${dt}c"
 export SV_DIR="$RUN_DIR"
 export dt
 export ncp
