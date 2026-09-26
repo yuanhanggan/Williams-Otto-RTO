@@ -21,4 +21,5 @@ BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/rto-re
 #done
 
 python3 "${BASE_DIR}/fa.py"
+python3 "${BASE_DIR}/test.py"
 
