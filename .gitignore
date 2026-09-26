@@ -228,3 +228,4 @@ env/
 *.txt
 *.log 
 *.pdf 
+*.svg
