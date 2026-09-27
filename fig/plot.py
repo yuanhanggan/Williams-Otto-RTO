@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 import glob, math, os, sys
 import matplotlib.pyplot as plt, matplotlib as mpl, pandas as pd
+BASE = os.getcwd()
 plt.rcParams.update({
     'font.family': 'serif',
     'mathtext.fontset': 'cm',
@@ -16,9 +18,9 @@ names = sys.argv[1:]
 runs = {}
 bounds = {}
 for name in names: 
-    csv = glob.glob(os.path.join(os.path.join(os.getcwd(), 'sims'), name, '*.csv'))[0]
+    csv = glob.glob(os.path.join(os.path.join(BASE, 'sims'), name, '*.csv'))[0]
     runs[name] = pd.read_csv(csv, index_col=0)
-    bounds_csv = os.path.join(os.path.join(os.getcwd(), 'sims', name), 'bounds.csv')
+    bounds_csv = os.path.join(os.path.join(BASE, 'sims', name), 'bounds.csv')
     bounds[name] = pd.read_csv(bounds_csv, index_col=0)
 
 # Plot
@@ -41,8 +43,8 @@ fig.legend(handles, labels, loc='lower center', ncol=len(names), frameon=False)
 fig.tight_layout(h_pad=3, rect=[0, 0.5 / fig.get_figheight(), 1, 1])
 
 # Save
-os.makedirs(os.path.join(os.getcwd(), 'plots'), exist_ok=True)
-fig.savefig(os.path.join(os.path.join(os.getcwd(), 'plots'), '_'.join(names) + '.pdf'), dpi=600)
+os.makedirs(os.path.join(BASE, 'plots'), exist_ok=True)
+fig.savefig(os.path.join(os.path.join(BASE, 'plots'), '_'.join(names) + '.pdf'), dpi=600)
 plt.show()
 
 # Use

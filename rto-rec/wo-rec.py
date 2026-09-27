@@ -16,7 +16,7 @@ fa_prof_up_spl = make_interp_spline(t_fa, fa_prof, k=0)
 
 # Parameters 
 mo.dt = Param(initialize=int(os.environ.get('dt')), within=PositiveIntegers) # 1x1 
-mo.dT = Param(initialize=int(os.environ.get('dT')), withi=PositiveIntegers) # 1x1
+mo.dT = Param(initialize=int(os.environ.get('dT')), within=PositiveIntegers) # 1x1
 mo.x_is = Set(initialize=x_is) # nx1
 mo.A = Param(RangeSet(1, 3), initialize=da['A']) # mx1 
 mo.Ea = Param(RangeSet(1, 3), initialize=da['Ea']) # mx1

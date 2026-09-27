@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 import os, sys
 import matplotlib.pyplot as plt, matplotlib as mpl, pandas as pd, numpy as np
+BASE = os.getcwd()
 
 # Formatting
 plt.rcParams.update({
@@ -21,7 +23,7 @@ cmap_range = (0.15, 0.70)
 names = sys.argv[1:]
 runs = {}
 for name in names:
-    csv = os.path.join(os.getcwd(), 'sims', name, 'wo.csv')
+    csv = os.path.join(BASE, 'sims', name, 'wo.csv')
     runs[name] = pd.read_csv(csv)
 
 # Calculate L2 norms
@@ -61,7 +63,8 @@ fig.legend(swatches, list(l2_by_run), loc='outside upper left', ncol=len(shades)
            handler_map={tuple: mpl.legend_handler.HandlerTuple(ndivide=None, pad=0)},
            handlelength=4)
 
-fig.savefig(os.path.join(os.getcwd(), 'plots', '_'.join(names) + '.pdf'), dpi=900)
+os.makedirs(os.path.join(BASE, 'plots'), exist_ok=True)
+fig.savefig(os.path.join(BASE, 'plots', '_'.join(names) + '.pdf'), dpi=900)
 plt.show()
 # Use
 # python ss_l2.py name1 name2 ...
