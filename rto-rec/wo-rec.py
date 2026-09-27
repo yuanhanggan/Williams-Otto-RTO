@@ -21,7 +21,6 @@ mo.x_is = Set(initialize=x_is) # nx1
 mo.A = Param(RangeSet(1, 3), initialize=da['A']) # mx1 
 mo.Ea = Param(RangeSet(1, 3), initialize=da['Ea']) # mx1
 mo.W = Param(initialize=da['W']) # 1x1  
-mo.q = Param(mo.x_is, initialize=0.0035) # 1x1 
 mo.t = ContinuousSet(bounds=(t_is[-1], t_is[-1]+mo.dt))
 mo.x_i0 = Param(mo.x_is, initialize={k: da_r[t_is[-1]][k] for k in da_r[t_is[-1]] & mo.x_is}) # nx1 
 mo.Tr_0 = Param(initialize=da_r[t_is[-1]]['Tr']) # 1x1 
@@ -103,11 +102,8 @@ mo.scaling_factor[mo.x] = 1e2
 # Run
 dis = TransformationFactory('dae.finite_difference')
 dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
-# dis = TransformationFactory('dae.collocation')
-# dis.apply_to(mo, nfe=1, wrt=mo.t, ncp=int(os.environ.get('dt')))
 mo_scaled = TransformationFactory('core.scale_model').create_using(mo, rename=False)
 solver = SolverFactory('ipopt')
-# solver.options['tol'] = 1e-12
 solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo_scaled, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
 TransformationFactory('core.scale_model').propagate_solution(mo_scaled, mo)

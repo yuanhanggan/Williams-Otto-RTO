@@ -2,7 +2,7 @@
 dt=8
 dT=10
 ncp=5
-t_f=900
+t_f=200
 RUN_DIR="${t_f}_${dt}c"
 
 export SV_DIR="$RUN_DIR" dt ncp dT t_f
