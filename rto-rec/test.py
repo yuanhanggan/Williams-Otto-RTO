@@ -1,3 +1,3 @@
 import os
-from fa import fa
-print(f"hihI{fa(60)}")
+from fa import t_fa, fa_prof
+
