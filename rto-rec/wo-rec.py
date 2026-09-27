@@ -7,7 +7,7 @@ import pandas as pd, os
 # Model 
 mo = ConcreteModel()
 da = DataPortal()
-da.load(filename='wo-rec.dat')
+da.load(filename=os.path.join(os.getcwd(), 'data', 'wo-rec.dat'))
 sv_dir = os.path.join(os.getcwd(), 'sims', os.environ.get('SV_DIR'))
 da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
 t_is = list(da_r.keys())

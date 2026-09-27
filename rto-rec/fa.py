@@ -7,7 +7,7 @@ from pyomo.environ import *
 # Data
 dt, dT, t_f = int(os.environ.get('dt')), int(os.environ.get('dT')), int(os.environ.get('t_f'))
 da = DataPortal()
-da.load(filename='wo-rec.dat')
+da.load(filename=os.path.join(os.getcwd(), 'data', 'wo-rec.dat'))
 fa_amb = da['fa_init']
 
 # Function 

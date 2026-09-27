@@ -7,7 +7,7 @@ RUN_DIR="${t_f}_${dt}c"
 
 export SV_DIR="$RUN_DIR" dt ncp dT t_f
 BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/rto-rec"
-SRC_CSV="${BASE_DIR}/wo.csv"
+SRC_CSV="${BASE_DIR}/data/wo.csv"
 DST_DIR="${BASE_DIR}/sims/${RUN_DIR}"
 python3 "${BASE_DIR}/fa.py"
 mkdir -p "$DST_DIR"
