@@ -9,12 +9,11 @@ da.load(filename=os.path.join(os.getcwd(), 'data', 'wo-rec.dat'))
 sv_dir = os.path.join(os.getcwd(), 'sims', os.environ.get('SV_DIR'))
 da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
 t_is = list(da_r.keys())
-x_is = ['x_1','x_2','x_3','x_4','x_5','x_6']
-dx_is = ['dx_dt_1','dx_dt_2','dx_dt_3','dx_dt_4','dx_dt_5','dx_dt_6']
 
 # Parameters 
-mo.x_is = Set(initialize=x_is) # nx1
-mo.dx_is = Set(initialize=dx_is) # nx1
+mo.x_is = Set(initialize=['x_1','x_2','x_3','x_4','x_5','x_6']) # nx1
+mo.dx_is = Set(initialize=['dx_dt_1','dx_dt_2','dx_dt_3','dx_dt_4','dx_dt_5','dx_dt_6']) # nx1
+mo.u_is = Set(initialize=['fb', 'Tr'])
 mo.A = Param(RangeSet(1, 3), initialize=da['A']) # mx1 
 mo.Ea = Param(RangeSet(1, 3), initialize=da['Ea']) # mx1
 mo.W = Param(initialize=da['W']) # 1x1  
@@ -25,10 +24,7 @@ mo.dx_i0 = Param(mo.dx_is, initialize={k: da_r[t_is[-1]][k] for k in da_r[t_is[-
 # Variables 
 def init_x(am, j):
     return am.x_i0[j]
-def init_dx(am, j):
-    return am.dx_i0[j]
 mo.x = Var(mo.x_is, bounds=(0, 1), initialize=init_x) # nx1
-# mo.dx = Var(mo.dx_is, within=Reals, initialize=init_dx)
 mo.fb = Var(bounds=(2, 10), initialize=da_r[t_is[-1]]['fb']) # 1x1 
 mo.Tr = Var(bounds=(323.15, 423.15), initialize=da_r[t_is[-1]]['Tr']) # 1x1
 
@@ -77,6 +73,15 @@ mo.xp_bal = Constraint(rule=xp_bal)
 # Solve 
 solver = SolverFactory('ipopt')
 solver.options['halt_on_ampl_error'] = 'yes'
+
+# Save 
 results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'rto{t_is[-1]}.log'))
 with open(os.path.join(sv_dir, 'logs', f'rto{t_is[-1]}.txt') , 'w') as file:
     mo.pprint(ostream = file)
+res = pd.DataFrame(index=pd.Index([t_is[-1]], name='t'))
+res_old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna()
+for v in (v for v in mo.component_objects(Var, active=True) if v.name in mo.u_is):
+    res[v.name] = value(v)
+res['obj'] = value(mo.obj)
+res = pd.concat([res_old, res]).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
+

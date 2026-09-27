@@ -108,11 +108,10 @@ solver.options['halt_on_ampl_error'] = 'yes'
 results = solver.solve(mo_scaled, tee=True, keepfiles=True, logfile = os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.log'))
 TransformationFactory('core.scale_model').propagate_solution(mo_scaled, mo)
 
-# Saving results 
+# Save
 res = pd.DataFrame(index=pd.Index([value(mo.t.last())], name='t'))
 old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna()
 bounds = {}
-res.index.name = 't'
 for v in mo.component_objects(Var, active = True):
     subsets = list(v.index_set().subsets())
     if v.dim() == 1: 
