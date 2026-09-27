@@ -7,7 +7,7 @@ mo = ConcreteModel()
 da = DataPortal()
 da.load(filename=os.path.join(os.getcwd(), 'data', 'wo-rec.dat'))
 sv_dir = os.path.join(os.getcwd(), 'sims', os.environ.get('SV_DIR'))
-da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna().to_dict(orient='index')
+da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna(how='all').to_dict(orient='index')
 t_is = list(da_r.keys())
 
 # Parameters 
@@ -79,9 +79,9 @@ results = solver.solve(mo, tee=True, keepfiles=True, logfile = os.path.join(sv_d
 with open(os.path.join(sv_dir, 'logs', f'rto{t_is[-1]}.txt') , 'w') as file:
     mo.pprint(ostream = file)
 res = pd.DataFrame(index=pd.Index([t_is[-1]], name='t'))
-res_old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna()
+res_old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna(how='all')
 for v in (v for v in mo.component_objects(Var, active=True) if v.name in mo.u_is):
     res[v.name] = value(v)
 res['obj'] = value(mo.obj)
-res = pd.concat([res_old, res]).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
+out = res.combine_first(res_old).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
 
