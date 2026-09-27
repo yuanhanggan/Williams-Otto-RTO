@@ -11,7 +11,6 @@ da.load(filename=os.path.join(os.getcwd(), 'data', 'wo-rec.dat'))
 sv_dir = os.path.join(os.getcwd(), 'sims', os.environ.get('SV_DIR'))
 da_r = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna(how='all').to_dict(orient='index')
 t_is = list(da_r.keys())
-print(f"hihi{da_r}")
 x_is = ['x_1','x_2','x_3','x_4','x_5','x_6']
 fa_prof_up_spl = make_interp_spline(t_fa, fa_prof, k=0)
 

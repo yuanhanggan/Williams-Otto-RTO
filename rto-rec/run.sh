@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-dt=8
+dt=30
 dT=10
 ncp=5
-t_f=16
-RUN_DIR="${t_f}_${dt}"
+t_f=600
+RUN_DIR="${t_f}_${dt}_disturb_amrit"
 
 BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/rto-rec"
 export SV_DIR="$RUN_DIR" dt ncp dT t_f
