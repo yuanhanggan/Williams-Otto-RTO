@@ -28,7 +28,7 @@ def init_x(am, j):
 def init_dx(am, j):
     return am.dx_i0[j]
 mo.x = Var(mo.x_is, bounds=(0, 1), initialize=init_x) # nx1
-mo.dx = Var(mo.dx_is, within=Reals, initialize=init_dx)
+# mo.dx = Var(mo.dx_is, within=Reals, initialize=init_dx)
 mo.fb = Var(bounds=(2, 10), initialize=da_r[t_is[-1]]['fb']) # 1x1 
 mo.Tr = Var(bounds=(323.15, 423.15), initialize=da_r[t_is[-1]]['Tr']) # 1x1
 
@@ -38,40 +38,40 @@ def k(am, I):
 
 # Objective expression 
 def obj_rule(am):
-    return -1 * ((5554.1 * (am.fa + am.fb) * am.x_i0['x_6']) \
-    + (125.91 * (am.fa + am.fb) * am.x_i0['x_4']) \
+    return -1 * ((5554.1 * (am.fa + am.fb) * am.x['x_6']) \
+    + (125.91 * (am.fa + am.fb) * am.x['x_4']) \
     - (370.3 * am.fa) \
     - (555.42 * am.fb))
 mo.obj = Objective(rule=obj_rule, sense=minimize)
 
 # Equality constraint expressions
 def xa_bal(am):
-    return am.dx_i0['dx_dt_1'] == am.fa - ((am.fa + am.fb) * am.x_i0['x_1']) \
-    - (k(am, 1) * am.x_i0['x_1'] * am.x_i0['x_2'] * am.W)
+    return am.dx_i0['dx_dt_1'] == am.fa - ((am.fa + am.fb) * am.x['x_1']) \
+    - (k(am, 1) * am.x['x_1'] * am.x['x_2'] * am.W)
 mo.xa_bal = Constraint(rule=xa_bal)
 def xb_bal(am):
-    return am.dx_i0['dx_dt_2'] == am.fb - ((am.fa + am.fb) * am.x_i0['x_2']) \
-    - (k(am, 1) * am.x_i0['x_1'] * am.x_i0['x_2'] * am.W) \
-    - (k(am, 2) * am.x_i0['x_2'] * am.x_i0['x_3'] * am.W)
+    return am.dx_i0['dx_dt_2'] == am.fb - ((am.fa + am.fb) * am.x['x_2']) \
+    - (k(am, 1) * am.x['x_1'] * am.x['x_2'] * am.W) \
+    - (k(am, 2) * am.x['x_2'] * am.x['x_3'] * am.W)
 mo.xb_bal = Constraint(rule=xb_bal)
 def xc_bal(am):
-    return am.dx_i0['dx_dt_3'] == (-1 * (am.fa + am.fb) * am.x_i0['x_3']) \
-    + 2 * (k(am, 1) * am.x_i0['x_1'] * am.x_i0['x_2'] * am.W) \
-    - 2 * (k(am, 2) * am.x_i0['x_2'] * am.x_i0['x_3'] * am.W) \
-    - (k(am, 3) * am.x_i0['x_3'] * am.x_i0['x_6'] * am.W)
+    return am.dx_i0['dx_dt_3'] == (-1 * (am.fa + am.fb) * am.x['x_3']) \
+    + 2 * (k(am, 1) * am.x['x_1'] * am.x['x_2'] * am.W) \
+    - 2 * (k(am, 2) * am.x['x_2'] * am.x['x_3'] * am.W) \
+    - (k(am, 3) * am.x['x_3'] * am.x['x_6'] * am.W)
 mo.xc_bal = Constraint(rule=xc_bal)
 def xe_bal(am):
-    return am.dx_i0['dx_dt_4'] == (-1 * (am.fa + am.fb) * am.x_i0['x_4']) \
-    + 2 * (k(am, 2) * am.x_i0['x_2'] * am.x_i0['x_3'] * am.W)
+    return am.dx_i0['dx_dt_4'] == (-1 * (am.fa + am.fb) * am.x['x_4']) \
+    + 2 * (k(am, 2) * am.x['x_2'] * am.x['x_3'] * am.W)
 mo.xe_bal = Constraint(rule=xe_bal)
 def xg_bal(am):
-    return am.dx_i0['dx_dt_5'] == (-1 * (am.fa + am.fb) * am.x_i0['x_5']) \
-    + 1.5 * (k(am, 3) * am.x_i0['x_3'] * am.x_i0['x_6'] * am.W)
+    return am.dx_i0['dx_dt_5'] == (-1 * (am.fa + am.fb) * am.x['x_5']) \
+    + 1.5 * (k(am, 3) * am.x['x_3'] * am.x['x_6'] * am.W)
 mo.xg_bal = Constraint(rule=xg_bal)
 def xp_bal(am):
-    return am.dx_i0['dx_dt_6']== (-1 * (am.fa + am.fb) * am.x_i0['x_6']) \
-    + (k(am, 2) * am.x_i0['x_2'] * am.x_i0['x_3'] * am.W) \
-    - 0.5 * (k(am, 3) * am.x_i0['x_3'] * am.x_i0['x_6'] * am.W)
+    return am.dx_i0['dx_dt_6']== (-1 * (am.fa + am.fb) * am.x['x_6']) \
+    + (k(am, 2) * am.x['x_2'] * am.x['x_3'] * am.W) \
+    - 0.5 * (k(am, 3) * am.x['x_3'] * am.x['x_6'] * am.W)
 mo.xp_bal = Constraint(rule=xp_bal)
 
 # Solve 
