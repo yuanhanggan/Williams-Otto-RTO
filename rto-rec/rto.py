@@ -38,7 +38,8 @@ def obj_rule(am):
     + (125.91 * (am.fa + am.fb) * am.x['x_4']) \
     - (370.3 * am.fa) \
     - (555.42 * am.fb))
-mo.obj = Objective(rule=obj_rule, sense=minimize)
+# mo.obj = Objective(rule=obj_rule, sense=minimize)
+mo.obj= Objective(rule=1)
 
 # Equality constraint expressions
 def xa_bal(am):

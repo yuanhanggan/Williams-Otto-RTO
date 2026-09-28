@@ -99,6 +99,13 @@ mo.scaling_factor = Suffix(direction=Suffix.EXPORT)
 mo.scaling_factor[mo.fb] = 1e1
 mo.scaling_factor[mo.x] = 1e2
 
+# Objective expression 
+def obj_rule(am, t):
+    return -1 * ((5554.1 * (am.fa[t] + am.fb[t]) * am.x['x_6', t]) \
+    + (125.91 * (am.fa[t] + am.fb[t]) * am.x['x_4'[t]]) \
+    - (370.3 * am.fa[t]) \
+    - (555.42 * am.fb[t]))
+
 # Run
 dis = TransformationFactory('dae.finite_difference')
 dis.apply_to(mo, nfe=1, wrt=mo.t, scheme='BACKWARD')
@@ -126,4 +133,3 @@ res = pd.concat([old, res]).to_csv(os.path.join(sv_dir, 'wo.csv'), index=True)
 with open(os.path.join(sv_dir, 'logs', f'wo{t_is[-1]}.txt') , 'w') as file:
     mo.pprint(ostream = file)
 pd.DataFrame.from_dict(bounds, orient='index', columns=['lower', 'upper']).to_csv(os.path.join(sv_dir, 'bounds.csv'))
-
