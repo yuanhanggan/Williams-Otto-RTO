@@ -24,8 +24,10 @@ mo.W = Param(initialize=da['W']) # 1x1
 mo.t = ContinuousSet(bounds=(t_is[-1], t_is[-1]+mo.dt))
 mo.x_i0 = Param(mo.x_is, initialize={k: da_r[t_is[-1]][k] for k in da_r[t_is[-1]] & mo.x_is}) # nx1 
 mo.Tr_0 = Param(initialize=da_r[t_is[-1]]['Tr']) # 1x1 
-mo.fa_0 = Param(initialize=float(fa_prof_up_spl(t_is[-1]))) # 1x1 
-mo.fb_0 = Param(initialize=da_r[t_is[-1]]['fb']) # 1x1  
+# mo.fa_0 = Param(initialize=float(fa_prof_up_spl(t_is[-1]))) # 1x1 
+mo.fa_0 = Param(initialize=da_r[t_is[-1]]['fa']) # 1x1 
+# mo.fb_0 = Param(initialize=da_r[t_is[-1]]['fb']) # 1x1  
+mo.fb_0 = Param(initialize=float(fa_prof_up_spl(t_is[-1]))) # 1x1 
 
 # Variables 
 def init_x(am, j, t):
@@ -35,7 +37,8 @@ def init_fb(am, t):
 def init_Tr(am, t):
     return am.Tr_0
 mo.x = Var(mo.x_is, mo.t, bounds=(0, 1), initialize=init_x) # nxt  
-mo.fb = Var(mo.t, bounds=(2, 10), initialize=init_fb) # 1xt 
+# mo.fb = Var(mo.t, bounds=(2, 10), initialize=init_fb) # 1xt 
+mo.fb = Var(mo.t, initialize=mo.fb_0)
 mo.Tr = Var(mo.t, bounds=(323.15, 423.15), initialize=init_Tr) # 1xt 
 mo.fa = Var(mo.t, initialize=mo.fa_0) # 1xt 
 mo.dx_dt = DerivativeVar(mo.x, wrt=mo.t, initialize=0) # nxt 
@@ -91,8 +94,9 @@ for j in mo.x_is:
     mo.x[j, mo.t.first()].fix(mo.x_i0[j])
 mo.Tr[mo.t.first()].fix(mo.Tr_0)
 mo.fa[mo.t.first()].fix(mo.fa_0)
-mo.fa[mo.t.last()].fix(float(fa_prof_up_spl(mo.t.last())))
+# mo.fa[mo.t.last()].fix(float(fa_prof_up_spl(mo.t.last())))
 mo.fb[mo.t.first()].fix(mo.fb_0)
+mo.fb[mo.t.last()].fix(float(fa_prof_up_spl(mo.t.last())))
 
 # Scaling factors 
 mo.scaling_factor = Suffix(direction=Suffix.EXPORT)
@@ -119,6 +123,7 @@ TransformationFactory('core.scale_model').propagate_solution(mo_scaled, mo)
 res = pd.DataFrame(index=pd.Index([value(mo.t.last())], name='t'))
 old = pd.read_csv(os.path.join(sv_dir, 'wo.csv')).set_index('t').dropna(how='all')
 bounds = {}
+res['obj'] = obj_rule(am=mo, t=mo.t.last())
 for v in mo.component_objects(Var, active = True):
     subsets = list(v.index_set().subsets())
     if v.dim() == 1: 
