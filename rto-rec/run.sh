@@ -2,8 +2,9 @@
 dt=8
 dT=10
 ncp=5
-t_f=900
-RUN_DIR="${t_f}_${dt}_disturb_amrit_no_rto1"
+t_f=300
+
+RUN_DIR="${t_f}_${dt}"
 
 BASE_DIR="/Users/kevinnag/Documents/School/2026research/Williams-Otto-RTO/rto-rec"
 export SV_DIR="$RUN_DIR" dt ncp dT t_f
@@ -16,7 +17,7 @@ cp "$SRC_CSV" "$DST_DIR/wo.csv"
 
 for i in $(seq 1 $(((t_f+dt-1)/dt))); do
    python3 "${BASE_DIR}/wo-rec.py"
-   # python3 "${BASE_DIR}/rto.py"
+   python3 "${BASE_DIR}/rto.py"
 done
 
 
